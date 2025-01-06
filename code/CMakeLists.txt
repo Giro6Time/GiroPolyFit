@@ -1,4 +1,4 @@
-set(PROJECT_NAME "GiroPolyFit")
+﻿set(PROJECT_NAME "GiroPolyFit")
 project(${PROJECT_NAME})
 
 
@@ -40,4 +40,8 @@ endif ()
 add_executable(GiroPolyFit main.cpp)
 target_link_libraries( ${PROJECT_NAME} Qt5::Widgets)
 target_include_directories( ${PROJECT_NAME} PRIVATE Qt5Core)
+
+add_subdirectory(debugger)
+
+target_link_libraries(GiroPolyFit debugger)
 
