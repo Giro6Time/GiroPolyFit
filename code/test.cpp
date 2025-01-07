@@ -24,8 +24,8 @@ namespace MyUi
             parent->show();
             Logger::initialize();
             out_message("test\n");
-            Logger::out() << "Logger::out() test" << std::endl;
-            Logger::out() << "Logger::out() test" << std::endl;
+            Logger::out("Feature1") << "Logger::out() test" << std::endl;
+            Logger::out("Feature2") << "Logger::out() test" << std::endl;
         }
     };
 }

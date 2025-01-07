@@ -8,9 +8,11 @@
 // #include <unistd.h>
 // #endif
 
-static void abort()
+void abort(const std::string &message)
 {
 #ifdef WIN32
+    if (message.length())
+        OutputDebugString(message.c_str());
     DebugBreak();
 #else
 

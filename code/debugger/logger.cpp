@@ -131,19 +131,18 @@ Logger *Logger::instance_ = nil;
 
 void Logger::initialize()
 {
-    std::lock_guard<std::mutex> lock(mutex_); // 预防一下多线程情况
     if (instance_)
     { // 防止重复初始化
-        Logger::warn() << "Logger already initialized. Reinitializing..." << std::endl;
+        Logger::warn("Logger") << "Logger already initialized. Reinitializing..." << std::endl;
         delete instance_;
     }
     instance_ = new Logger();
-    Logger::out() << "Project initialized" << std::endl;
+    Logger::out("GiroPolyFit") << "Project initialized" << std::endl;
 }
 
 void Logger::terminate()
 {
-    Logger::out() << "terminated... Bye!" << std::endl;
+    Logger::out("GiroPolyFit") << "terminated... Bye!" << std::endl;
     // assert (instance_ != nil) ;
     delete instance_;
     instance_ = nil;
@@ -171,6 +170,8 @@ const std::string Logger::log_file_name()
 
 Logger::Logger() : out_(this), warn_(this), error_(this)
 {
+    log_everything_ = true;
+
     // 初始化输出流并且设置默认输出client为coutLogger
     default_client_ = new CoutLogger();
     register_client(default_client_);
@@ -198,24 +199,22 @@ bool Logger::rename_log_file(const std::string &file_name)
     return true;
 }
 
-
-
-LoggerStream &Logger::out()
+LoggerStream &Logger::out(const std::string &feature)
 {
     // assert instance != nil
-    return instance_->out_stream();
+    return instance_->out_stream(feature);
 }
 
-LoggerStream &Logger::warn()
+LoggerStream &Logger::warn(const std::string &feature)
 {
     // assert instance != nil
-    return instance_->warn_stream();
+    return instance_->warn_stream(feature);
 }
 
-LoggerStream &Logger::error()
+LoggerStream &Logger::error(const std::string &feature)
 {
     // assert instance != nil
-    return instance_->error_stream();
+    return instance_->error_stream(feature);
 }
 
 void Logger::notify(LoggerStream *s, std::string &message)
@@ -238,44 +237,125 @@ void Logger::notify(LoggerStream *s, std::string &message)
     }
 }
 
-LoggerStream &Logger::out_stream()
+LoggerStream &Logger::out_stream(const std::string &feature)
 {
+    current_feature_ = feature;
     return out_;
 }
 
-LoggerStream &Logger::error_stream()
+LoggerStream &Logger::error_stream(const std::string &feature)
 {
+    current_feature_ = feature;
     return error_;
 }
 
-LoggerStream &Logger::warn_stream()
+LoggerStream &Logger::warn_stream(const std::string &feature)
 {
+    current_feature_ = feature;
     return warn_;
 }
 
 void Logger::notify_out(const std::string &message)
 {
-    std::set<LoggerClient *>::iterator it = clients.begin();
-    for (; it != clients.end(); it++)
+    if ((log_everything_ && log_features_exclude_.find(current_feature_) == log_features_exclude_.end()) || // everything模式下不被排除
+        log_features_.find(current_feature_) != log_features_.end())                                        // 或非everything模式下记录在log_features表中
     {
-        (*it)->out_message(message);
+
+        std::set<LoggerClient *>::iterator it = clients.begin();
+        if (current_feature_.empty())
+            for (; it != clients.end(); it++)
+            {
+                (*it)->out_message(message);
+            }
+        else
+            for (; it != clients.end(); it++)
+            {
+                (*it)->out_message(current_feature_ + " " + message);
+            }
     }
 }
 
 void Logger::notify_warn(const std::string &message)
 {
-    std::set<LoggerClient *>::iterator it = clients.begin();
-    for (; it != clients.end(); it++)
+    if ((log_everything_ && log_features_exclude_.find(current_feature_) == log_features_exclude_.end()) || // everything模式下不被排除
+        log_features_.find(current_feature_) != log_features_.end())                                        // 或非everything模式下记录在log_features表中
     {
-        (*it)->warn_message(message);
+
+        std::set<LoggerClient *>::iterator it = clients.begin();
+        if (current_feature_.empty())
+            for (; it != clients.end(); it++)
+            {
+                (*it)->warn_message(message);
+            }
+        else
+            for (; it != clients.end(); it++)
+            {
+                (*it)->warn_message(current_feature_ + " " + message);
+            }
     }
 }
 
 void Logger::notify_error(const std::string &message)
 {
-    std::set<LoggerClient *>::iterator it = clients.begin();
-    for (; it != clients.end(); it++)
+    if ((log_everything_ && log_features_exclude_.find(current_feature_) == log_features_exclude_.end()) || // everything模式下不被排除
+        log_features_.find(current_feature_) != log_features_.end())                                        // 或非everything模式下记录在log_features表中
     {
-        (*it)->error_message(message);
+
+        std::set<LoggerClient *>::iterator it = clients.begin();
+        if (current_feature_.empty())
+            for (; it != clients.end(); it++)
+            {
+                (*it)->error_message(message);
+            }
+        else
+            for (; it != clients.end(); it++)
+            {
+                (*it)->error_message(current_feature_ + " " + message);
+            }
     }
+}
+
+bool Logger::set_features(const std::string &features, const std::string &features_exclude)
+{
+    std::vector<std::string> features_tmp;
+    String::split(features, ';', features_tmp);
+    log_features_.clear();
+    for (unsigned i = 0; i < features.size(); i++)
+    {
+        log_features_.insert(features_tmp[i]);
+    }
+    log_everything_ = (features_tmp.size() == 1 && ((features_tmp[0] == "*") || (features_tmp[0] == "Everything")));
+
+    log_features_exclude_.clear();
+    if (log_everything_ && features.length())
+    {
+        std::vector<std::string> features_exclude_tmp;
+        String::split(features_exclude, ';', features_exclude_tmp);
+        for (unsigned i = 0; i < features_exclude_tmp.size(); i++)
+        {
+            log_features_exclude_.insert(features_exclude_tmp[i]);
+        }
+    }
+    return true;
+}
+
+bool Logger::get_features(std::string &features, std::string &features_exclude)
+{
+    features = features_exclude = "";
+    std::set<std::string>::const_iterator it = log_features_.begin();
+    for (; it != log_features_.end(); it++)
+    {
+        if (features.length() != 0)
+            features += ';';
+        features += *it;
+    }
+    it = log_features_exclude_.begin();
+    for (; it != log_features_exclude_.end(); it++)
+    {
+        if (features_exclude.length() != 0)
+            features_exclude += ';';
+        features_exclude += *it;
+    }
+
+    return true;
 }

@@ -1,15 +1,14 @@
-﻿#include <fstream>
+﻿#pragma once
+#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <set>
+#include <vector>
 #include <mutex>
 
-#include "../common.h"
-#include "../basic_types.h"
+#include "basic_types.h"
 #include "basic.h"
-
-#pragma once
 
 class Logger;
 class LoggerStream;
@@ -76,7 +75,7 @@ public:
     /// @brief 输出ERROR 此处直接flush，如果需要换行，则使用Logger::error() << endl或者在value中直接添加换行符
     void error_message(const std::string &message);
     /// @return log的文件名
-    const std::string get_log_file_name() { return log_file_name_; }
+    const std::string get_log_file_name();
 
 protected:
     void set_file_name(const std::string &value);
@@ -94,22 +93,12 @@ public:
     Logger();
     ~Logger();
 
-    static LoggerStream &out();
-    static LoggerStream &warn();
-    static LoggerStream &error();
+    static LoggerStream &out(const std::string &feature);
+    static LoggerStream &warn(const std::string &feature);
+    static LoggerStream &error(const std::string &feature);
 
     static Logger *instance()
     {
-        if (!instance_) // singleton
-        {
-            // 预防一下多线程情况
-            std::lock_guard<std::mutex> lock(mutex_);
-            if (!instance_)
-            { // Double-checked locking
-                initialize();
-            }
-        }
-        initialize();
         return instance_;
     }
 
@@ -119,15 +108,15 @@ public:
     bool is_client(LoggerClient *c);
 
     const std::string log_file_name();
-    bool Logger::rename_log_file(const std::string& file_name);
+    bool Logger::rename_log_file(const std::string &file_name);
 
 protected:
     // fulush stream
     void notify(LoggerStream *from, std::string &message);
 
-    LoggerStream &out_stream();
-    LoggerStream &warn_stream();
-    LoggerStream &error_stream();
+    LoggerStream &out_stream(const std::string &feature);
+    LoggerStream &warn_stream(const std::string &feature);
+    LoggerStream &error_stream(const std::string &feature);
 
     void notify_out(const std::string &message);
     void notify_warn(const std::string &message);
@@ -135,7 +124,6 @@ protected:
 
 private:
     static Logger *instance_;
-    static std::mutex mutex_;
 
     LoggerClient *default_client_;
     FileLogger *file_client_; // FileClient不需要由外部对象来管理，因此直接由Logger管理。
@@ -146,5 +134,15 @@ private:
 
     std::set<LoggerClient *> clients; // 已注册的clients (观察者模式)，当Logger的输出流收到消息时，将会通知所有的clients输出Log
 
+    std::set<std::string> log_features_;
+    std::set<std::string> log_features_exclude_;
+    /// @brief 设置logger在输出日志时对带有哪些feature的调试信息进行输出
+    /// @param features 将要输出的features，多个features之间用 ';' 隔开，填写"Everything"或者"*"以输出所有features
+    /// @param features_exclude 在Everything模式下，哪些词条将不被输出。如果features已填写非Everything，则此参数不会生效
+    virtual bool set_features(const std::string &features, const std::string &features_exclude = "");
+    /// @brief 获取当前的features和features_exclude，通过参数列表引用返回结果
+    virtual bool get_features(std::string &features, std::string &features_exclude);
+    bool log_everything_ = false;
+    std::string current_feature_;
     friend class LoggerStream;
 };
