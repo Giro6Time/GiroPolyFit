@@ -270,7 +270,7 @@ void Logger::notify_out(const std::string &message)
         else
             for (; it != clients.end(); it++)
             {
-                (*it)->out_message(current_feature_ + " " + message);
+                (*it)->out_message("["+ current_feature_ + "] " + message);
             }
     }
 }
@@ -290,7 +290,7 @@ void Logger::notify_warn(const std::string &message)
         else
             for (; it != clients.end(); it++)
             {
-                (*it)->warn_message(current_feature_ + " " + message);
+                (*it)->warn_message("["+ current_feature_ + "] " + message);
             }
     }
 }
@@ -310,7 +310,7 @@ void Logger::notify_error(const std::string &message)
         else
             for (; it != clients.end(); it++)
             {
-                (*it)->error_message(current_feature_ + " " + message);
+                (*it)->error_message("["+ current_feature_ + "] " + message);
             }
     }
 }
