@@ -42,7 +42,9 @@ target_link_libraries( ${PROJECT_NAME} Qt5::Widgets)
 target_include_directories( ${PROJECT_NAME} PRIVATE Qt5Core)
 
 add_subdirectory(debugger)
+add_subdirectory(math)
 add_subdirectory(basic)
+add_subdirectory(model)
 
 target_link_libraries(GiroPolyFit debugger)
 
