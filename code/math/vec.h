@@ -1,4 +1,4 @@
-﻿#include "basic.h"
+﻿#include "common.h"
 
 /// @brief n维向量模板
 /// @tparam DIM 维度
@@ -132,7 +132,7 @@ public:
         }
         return result;
     }
-    thisclass &operator+=(const thisclass &v)
+    thisclass &operator*=(const thisclass &v)
     {
         for (unsigned i = 0; i < DIM; i++)
         {
@@ -228,7 +228,7 @@ public:
     const T *data() const { return data_; }
 
 protected:
-    T[] data_;
+    T data_[];
 };
 
 // 适配GLSL
