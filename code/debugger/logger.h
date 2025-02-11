@@ -10,6 +10,9 @@
 #include "basic_types.h"
 #include "basic.h"
 
+//TODO: solve this warning
+#pragma warning(disable : 4251)
+
 class Logger;
 class LoggerStream;
 class LoggerStreamBuffer;

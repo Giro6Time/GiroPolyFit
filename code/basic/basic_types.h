@@ -7,7 +7,8 @@
 
 #include <string>
 #include <vector>
-#include <vec.h>
+#include "common.h"
+#include "vec.h"
 namespace String
 {
     void split(const std::string &in,

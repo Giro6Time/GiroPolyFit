@@ -1,4 +1,6 @@
-﻿#include <vector>
+﻿#pragma once
+
+#include <vector>
 #include "math_types.h"
 #include "common.h"
 
@@ -27,6 +29,6 @@ private:
     std::vector<vec3> normals_;
     std::vector<float> planar_qualities_;
 
-    mutable bool bbox_is_valid_;
+    // mutable bool bbox_is_valid_;
     // mutable Box3d bbox_;
 };

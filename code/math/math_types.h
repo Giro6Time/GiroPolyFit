@@ -1,3 +1,6 @@
+#pragma once
+
+
 #include "common.h"
 #include "basic_types.h"
 class GIROPOLYFIT_API GeometryTypes
