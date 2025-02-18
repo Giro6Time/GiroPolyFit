@@ -5,6 +5,7 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
+#include <memory>
 
 #include "logger.h"
 #include "math_types.h"
@@ -16,11 +17,11 @@ class VertexGroup;
 class GIROPOLYFIT_API PointSetSerializer
 {
 public:
-    static void load_vg(PointSet *point_set, const std::string &file_name);
-    static void save_vg(const PointSet *point_set, const std::string &file_name);
+    static void load_vg(std::unique_ptr<PointSet> point_set, const std::string &file_name);
+    static void save_vg(const std::unique_ptr<PointSet> point_set, const std::string &file_name);
 
-    static void load_bvg(PointSet *point_set, const std::string &file_name);
-    static void save_bvg(const PointSet *point_set, const std::string &file_name);
+    static void load_bvg(std::unique_ptr<PointSet> point_set, const std::string &file_name);
+    static void save_bvg(const std::unique_ptr<PointSet> point_set, const std::string &file_name);
 
 private:
     static VertexGroup *read_ascii_group(std::istream &input);

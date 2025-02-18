@@ -42,7 +42,7 @@ group_num_points: num
 idx ...
 */
 
-void PointSetSerializer::load_vg(PointSet *point_set, const std::string &file_name)
+void PointSetSerializer::load_vg(std::unique_ptr<PointSet> point_set, const std::string &file_name)
 {
     // TODO: 添加动态进度记录
 
@@ -119,19 +119,20 @@ void PointSetSerializer::load_vg(PointSet *point_set, const std::string &file_na
     }
 }
 
-void PointSetSerializer::save_vg(const PointSet *point_set, const std::string &file_name)
+// TODO: 实现PointSetSerializer的其他读写方法
+void PointSetSerializer::save_vg(const std::unique_ptr<PointSet> point_set, const std::string &file_name)
 {
     // 实现保存vg文件的功能
     std ::cout << "save vg" << std::endl;
 }
 
-void PointSetSerializer::load_bvg(PointSet *point_set, const std::string &file_name)
+void PointSetSerializer::load_bvg(std::unique_ptr<PointSet> point_set, const std::string &file_name)
 {
     // 实现加载bvg文件的功能
     std ::cout << "save vg" << std::endl;
 }
 
-void PointSetSerializer::save_bvg(const PointSet *point_set, const std::string &file_name)
+void PointSetSerializer::save_bvg(const std::unique_ptr<PointSet> point_set, const std::string &file_name)
 {
     // 实现保存bvg文件的功能
     std ::cout << "save bvg" << std::endl;
