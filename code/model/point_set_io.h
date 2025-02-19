@@ -12,7 +12,7 @@ class PointSet;
 class GIROPOLYFIT_API PointSetIO
 {
 public:
-    static std::unique_ptr<PointSet> read(const std::string &file_name);
+    static std::shared_ptr<PointSet> read(const std::string &file_name);
 
-    static bool save(const std::string &file_name, std::unique_ptr<PointSet> point_set);
+    static bool save(const std::string &file_name, std::shared_ptr<PointSet> point_set);
 };

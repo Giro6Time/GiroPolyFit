@@ -256,6 +256,21 @@ inline vecng<DIM, T> mix(const vecng<DIM, T> &v1, const vecng<DIM, T> &v2, T s)
     return (T(1) - s) * v1 + s * v2;
 }
 
+
+template <int DIM, class T> inline std::ostream& operator<<(std::ostream& out, const ::vecng<DIM,T>& v) {
+	for(unsigned int i=0; i<DIM; i++) {
+		out << v[i] << " " ;
+	}
+	return out ;
+}
+
+template <int DIM, class T> inline std::istream& operator>>(std::istream& in, ::vecng<DIM,T>& v) {
+	for(unsigned int i=0; i<DIM; i++) {
+		in >> v[i] ;
+	}
+	return in ;
+}
+
 /*-------------------------------------------vec2-------------------------------------------*/
 
 template <class T>
@@ -360,6 +375,15 @@ template <class T>
 inline T det(const vecng<2, T> &v1, const vecng<2, T> &v2)
 {
     return v1.x * v2.y - v1.y * v2.x;
+}
+
+
+template <class T> inline std::ostream& operator<<(std::ostream& out, const ::vecng<2,T>& v) {
+	return out << v.x << " " << v.y ;
+}
+
+template <class T> inline std::istream& operator>>(std::istream& in, ::vecng<2,T>& v) {
+	return in >> v.x >> v.y ;
 }
 
 /*-------------------------------------------vec3-------------------------------------------*/
@@ -478,6 +502,15 @@ inline vecng<3, T> cross(const vecng<3, T> &v1, const vecng<3, T> &v2)
         v1.y * v2.z - v1.z * v2.y,
         v1.z * v2.x - v1.x * v2.z,
         v1.x * v2.y - v1.y * v2.x);
+}
+
+
+template <class T> inline std::ostream& operator<<(std::ostream& out, const ::vecng<3,T>& v) {
+	return out << v.x << " " << v.y << " " << v.z  ;
+}
+
+template <class T> inline std::istream& operator>>(std::istream& in, ::vecng<3,T>& v) {
+	return in >> v.x >> v.y >> v.z ;
 }
 
 /*-------------------------------------------vec4-------------------------------------------*/
@@ -616,58 +649,11 @@ inline vecng<4, T> operator-(const vecng<4, T> &v1, const vecng<4, T> &v2)
     return vecng<4, T>(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z, v1.w - v2.w);
 }
 
-template <int DIM, class T>
-inline std::ostream &operator<<(std::ostream &out, const ::vecng<DIM, T> &v)
-{
-    for (unsigned i = 0; i < DIM; i++)
-    {
-        out << v[i] << " ";
-    }
-    return out;
+
+template <class T> inline std::ostream& operator<<(std::ostream& out, const ::vecng<4,T>& v) {
+	return out << v.x << " " << v.y << " " << v.z  << " " << v.w ;
 }
 
-template <int DIM, class T>
-inline std::istream &operator>>(std::istream &in, ::vecng<DIM, T> &v)
-{
-    for (unsigned i = 0; i < DIM; i++)
-    {
-        in >> v[i];
-    }
-    return in;
-}
-
-template <class T>
-inline std::ostream &operator<<(std::ostream &out, const ::vecng<2, T> &v)
-{
-    return out << v.x << " " << v.y;
-}
-
-template <class T>
-inline std::istream &operator>>(std::istream &in, ::vecng<2, T> &v)
-{
-    return in >> v.x >> v.y;
-}
-
-template <class T>
-inline std::ostream &operator<<(std::ostream &out, const ::vecng<3, T> &v)
-{
-    return out << v.x << " " << v.y << " " << v.z;
-}
-
-template <class T>
-inline std::istream &operator>>(std::istream &in, ::vecng<3, T> &v)
-{
-    return in >> v.x >> v.y >> v.z;
-}
-
-template <class T>
-inline std::ostream &operator<<(std::ostream &out, const ::vecng<4, T> &v)
-{
-    return out << v.x << " " << v.y << " " << v.z << " " << v.w;
-}
-
-template <class T>
-inline std::istream &operator>>(std::istream &in, ::vecng<4, T> &v)
-{
-    return in >> v.x >> v.y >> v.z >> v.w;
+template <class T> inline std::istream& operator>>(std::istream& in, ::vecng<4,T>& v) {
+	return in >> v.x >> v.y >> v.z >> v.w ;
 }

@@ -1,33 +1,26 @@
 ﻿#include "point_set_io.h"
 
-std::unique_ptr<PointSet> PointSetIO::read(const std::string &file_name)
+std::shared_ptr<PointSet> PointSetIO::read(const std::string &file_name)
 {
     std::ifstream in(file_name.c_str());
 
-    if (in.fail())
-    {
-        Logger::error("PointSetIO") << "Fail to open file: " << file_name << std::endl;
-        return nil;
-    }
-    in.close();
-
-    Logger::out("PointSetIO") << "reading file..." << std::endl;
+    Logger::out("PointSetIO") << "try reading file: \"" << file_name << "\"" << std::endl;
     std::string extension = FileUtils::extension(file_name);
 
-    std::unique_ptr<PointSet> ps = std::make_unique<PointSet>();
+    std::shared_ptr<PointSet> ps = std::make_shared<PointSet>();
     if (extension == "vg")
     {
-        PointSetSerializer::load_vg(std::move(ps), file_name);
+        PointSetSerializer::load_vg(ps, file_name);
     }
     else if (extension == "bvg")
     {
-        PointSetSerializer::load_bvg(std::move(ps), file_name);
+        PointSetSerializer::load_bvg(ps, file_name);
     }
 
     return ps;
 }
 
-bool PointSetIO::save(const std::string &file_name, std::unique_ptr<PointSet> point_set)
+bool PointSetIO::save(const std::string &file_name, std::shared_ptr<PointSet> point_set)
 {
     // 打开输出文件流
     std::ofstream out(file_name.c_str());
@@ -48,11 +41,11 @@ bool PointSetIO::save(const std::string &file_name, std::unique_ptr<PointSet> po
     {
         if (extension == "vg")
         {
-            PointSetSerializer::save_vg(std::move(point_set), file_name);
+            PointSetSerializer::save_vg(point_set, file_name);
         }
         else if (extension == "bvg")
         {
-            PointSetSerializer::save_bvg(std::move(point_set), file_name);
+            PointSetSerializer::save_bvg(point_set, file_name);
         }
         else
         {

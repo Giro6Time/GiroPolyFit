@@ -42,11 +42,10 @@ group_num_points: num
 idx ...
 */
 
-void PointSetSerializer::load_vg(std::unique_ptr<PointSet> point_set, const std::string &file_name)
+void PointSetSerializer::load_vg(std::shared_ptr<PointSet> point_set, const std::string &file_name)
 {
     // TODO: 添加动态进度记录
 
-    // 实现加载vg文件的功能
     std::ifstream input = std::ifstream(file_name.c_str());
     if (input.fail())
     {
@@ -62,6 +61,7 @@ void PointSetSerializer::load_vg(std::unique_ptr<PointSet> point_set, const std:
     // dumy表示当前读取的数据类型（如point，color等）
     std::string dumy;
     std::size_t num;
+    std::string dbgstr;
 
     // 读入点坐标
     input >> dumy >> num;
@@ -95,70 +95,195 @@ void PointSetSerializer::load_vg(std::unique_ptr<PointSet> point_set, const std:
     input >> dumy >> num_groups;
     for (int i = 0; i < num_groups; ++i)
     {
-        // VertexGroup::Ptr g = read_ascii_group(input);
-        // if (!g)
-        //     continue;
+        std::shared_ptr<VertexGroup> g = read_ascii_group(input);
+        if (!g)
+            continue;
 
-        // if (!g->empty())
-        // {
-        //     g->set_point_set(pset);
-        //     pset->groups().push_back(g);
-        // }
+        if (!g->empty())
+        {
+            g->set_point_set(point_set);
+            point_set->groups().push_back(g);
+        }
 
-        // int num_children = 0;
-        // input >> dumy >> num_children;
-        // for (int j = 0; j < num_children; ++j)
-        // {
-        //     VertexGroup::Ptr chld = read_ascii_group(input);
-        //     if (!chld->empty())
-        //     {
-        //         chld->set_point_set(pset);
-        //         g->add_child(chld);
-        //     }
-        // }
+        int num_children = 0;
+        input >> dumy >> num_children;
+        for (int j = 0; j < num_children; ++j)
+        {
+            std::shared_ptr<VertexGroup> chld = read_ascii_group(input);
+            if (!chld->empty())
+            {
+                chld->set_point_set(point_set);
+                g->add_child(chld);
+            }
+        }
     }
 }
 
-// TODO: 实现PointSetSerializer的其他读写方法
-void PointSetSerializer::save_vg(const std::unique_ptr<PointSet> point_set, const std::string &file_name)
+void PointSetSerializer::save_vg(const std::shared_ptr<PointSet> point_set, const std::string &file_name)
 {
-    // 实现保存vg文件的功能
-    std ::cout << "save vg" << std::endl;
+    // TODO: 添加动态进度记录
+    std::ofstream output(file_name);
+    if (!output.is_open())
+    {
+        Logger::error("PointSetSerializer") << "could not open file \"" << file_name << "\"" << std::endl;
+        return;
+    }
+    output.precision(16);
+
+    // 记录点坐标
+    const std::vector<vec3> &points = point_set->points();
+    output << "num_points: " << points.size() << std::endl;
+    for (const auto &p : points)
+    {
+        output << p << std::endl;
+    }
+    output << std::endl;
+
+    // 记录颜色到文件中
+    const std::vector<vec3> &colors = point_set->colors();
+    output << "num_colors: " << colors.size() << std::endl;
+    for (const auto &c : colors)
+    {
+        output << c << std::endl;
+    }
+    output << std::endl;
+
+    // 记录法向量到文件中
+    const std::vector<vec3> &normals = point_set->normals();
+    output << "num_normals: " << normals.size() << std::endl;
+    for (const auto &n : normals)
+    {
+        output << n << std::endl;
+    }
+    output << std::endl;
+
+    // 记录群组信息到文件中
+    const std::vector<std::shared_ptr<VertexGroup>> &groups = point_set->groups();
+    output << "num_groups: " << groups.size() << std::endl
+           << std::endl;
+    for (const auto &g : groups)
+    {
+        // 写入当前群组的信息
+        write_ascii_group(output, g);
+        output << std::endl
+               << std::endl;
+
+        // 处理子群组
+        const std::vector<std::shared_ptr<VertexGroup>> children = g->children();
+        output << "num_children: " << children.size() << std::endl
+               << std::endl;
+        for (const auto &child : children)
+        {
+            if (!child->empty())
+            {
+                write_ascii_group(output, child);
+                output << std::endl;
+            }
+        }
+    }
+
+    // 关闭输出文件
+    output.close();
 }
 
-void PointSetSerializer::load_bvg(std::unique_ptr<PointSet> point_set, const std::string &file_name)
+// TODO: 实现PointSetSerializer的其他读写方法
+
+void PointSetSerializer::load_bvg(std::shared_ptr<PointSet> point_set, const std::string &file_name)
 {
     // 实现加载bvg文件的功能
     std ::cout << "save vg" << std::endl;
 }
 
-void PointSetSerializer::save_bvg(const std::unique_ptr<PointSet> point_set, const std::string &file_name)
+void PointSetSerializer::save_bvg(const std::shared_ptr<PointSet> point_set, const std::string &file_name)
 {
     // 实现保存bvg文件的功能
     std ::cout << "save bvg" << std::endl;
 }
 
-VertexGroup *PointSetSerializer::read_ascii_group(std::istream &input)
+std::shared_ptr<VertexGroup> PointSetSerializer::read_ascii_group(std::istream &input)
 {
-    // 实现读取ascii格式的顶点组的功能
-    std ::cout << "read ascii group" << std::endl;
-    return nullptr;
+    std::string dumy;
+    int type;
+    input >> dumy >> type;
+
+    int num;
+    input >> dumy >> num;
+    if (num != 4)
+        return nullptr; // bad/unknown data
+
+    std::vector<float> para(num);
+    input >> dumy;
+    for (int i = 0; i < num; ++i)
+        input >> para[i];
+
+    std::string label;
+    input >> dumy >> label;
+
+    float r, g, b;
+    input >> dumy >> r >> g >> b;
+    // Color color(r, g, b);
+
+    int num_points;
+    input >> dumy >> num_points;
+
+    std::shared_ptr<VertexGroup> grp = std::make_shared<VertexGroup>();
+    // assign_group_parameters(grp, para);
+
+    for (int i = 0; i < num_points; ++i)
+    {
+        int idx;
+        input >> idx;
+        grp->push_back(idx);
+    }
+
+    grp->set_label(label);
+    // grp->set_color(color);
+
+    return grp;
 }
 
-void PointSetSerializer::write_ascii_group(std::ostream &output, VertexGroup *group)
+void PointSetSerializer::write_ascii_group(std::ostream &output, std::shared_ptr<VertexGroup> group)
 {
     // 实现写入ascii格式的顶点组的功能
-    std ::cout << "write ascii group" << std::endl;
+    {
+        //输出后把vg都修改为plane
+        int type = 0;
+        output << "group_type: " << type << std::endl;
+
+        // const std::vector<float> &para = get_group_parameters(group);
+        const std::vector<float> &para = {0, 0, 0, 0}; // TODO: 替换测试数据为计算结果
+        output << "num_group_parameters: " << para.size() << std::endl;
+        output << "group_parameters: ";
+        for (std::size_t i = 0; i < para.size() - 1; ++i)
+            output << para[i] << " ";
+        output << para[para.size() - 1] << std::endl;
+
+        std::string label = group->label();
+        output << "group_label: " << label << std::endl;
+
+        // Color c = g->color();
+        // output << "group_color: " << c.r() << " " << c.g() << " " << c.b() << std::endl;
+        output << "group_color: " << 1 << " " << 1 << " " << 1 << std::endl; // TODO: 替换测试数据为计算结果
+
+        std::size_t num_point = group->size();
+        output << "group_num_points: " << num_point << std::endl;
+
+        for (std::size_t i = 0; i < group->size() - 1; ++i)
+        {
+            output << group->at(i) << " ";
+        }
+        output << group->at(group->size() - 1);
+    }
 }
 
-VertexGroup *PointSetSerializer::read_binary_group(std::istream &input)
+std::shared_ptr<VertexGroup> PointSetSerializer::read_binary_group(std::istream &input)
 {
     // 实现读取二进制格式的顶点组的功能
     std ::cout << "save vg" << std::endl;
     return nullptr;
 }
 
-void PointSetSerializer::write_binary_group(std::ostream &output, VertexGroup *group)
+void PointSetSerializer::write_binary_group(std::ostream &output, std::shared_ptr<VertexGroup> group)
 {
     // 实现写入二进制格式的顶点组的功能
     std ::cout << "save vg" << std::endl;

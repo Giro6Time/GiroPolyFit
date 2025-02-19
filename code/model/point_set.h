@@ -3,7 +3,8 @@
 #include <vector>
 #include "math_types.h"
 #include "common.h"
-
+#include "vertex_group.h"
+class VertexGroup;
 class GIROPOLYFIT_API PointSet
 {
 public:
@@ -18,16 +19,15 @@ public:
     const std::vector<vec3> &points() const { return points_; }
     const std::vector<vec3> &colors() const { return colors_; }
     const std::vector<vec3> &normals() const { return normals_; }
-    const std::vector<float> &planar_qualities() const
-    {
-        return planar_qualities_;
-    }
+    const std::vector<float> &planar_qualities() const { return planar_qualities_; }
+    std::vector<std::shared_ptr<VertexGroup>> &groups() { return groups_; };
 
 private:
     std::vector<vec3> points_;
     std::vector<vec3> colors_;
     std::vector<vec3> normals_;
     std::vector<float> planar_qualities_;
+    std::vector<std::shared_ptr<VertexGroup>> groups_;
 
     // mutable bool bbox_is_valid_;
     // mutable Box3d bbox_;
