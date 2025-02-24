@@ -10,7 +10,7 @@ set(AllTest "AllTest")
 function(add_gtest test_name source_file)
     add_executable(${test_name} ${source_file})
 
-    target_link_libraries(${test_name} PRIVATE math model basic debugger)
+    target_link_libraries(${test_name} PRIVATE model debugger)
     target_link_libraries(${test_name} PRIVATE gtest gtest_main)
     message(STATUS "Adding test: ${test_name} from source: ${source_file}")
     add_test(NAME ${test_name} COMMAND "${test_name}.exe")

@@ -4,9 +4,10 @@
 #include <memory>
 #include <string>
 #include <set>
+#include "color.h"
 #include "common.h"
 #include "point_set.h"
-
+#include "plane.h"
 class PointSet;
 
 class GIROPOLYFIT_API VertexGroup : public std::vector<unsigned int>
@@ -25,10 +26,14 @@ public:
     void set_label(const std::string label) { label_ = label; }
     size_t num_vertex() { return size(); }
 
+    const Color &color() const { return color_; }
+    void set_color(const Color &color) { color_ = color; }
+
+    Plane &plane() { return plane_; }
+    void set_plane(const Plane &plane) { plane_ = plane; }
+
     std::shared_ptr<PointSet> point_set() { return point_set_; }
     void set_point_set(std::shared_ptr<PointSet> pset) { point_set_ = pset; }
-
-    // TODO: 创建Color类并添加color
 
     std::shared_ptr<VertexGroup> parent;
 
@@ -48,6 +53,8 @@ public:
     virtual void set_highlighted(bool b) { highlighted_ = b; }
 
 private:
+    Color color_;
+    Plane plane_;
     std::set<std::shared_ptr<VertexGroup>> children_;
     std::string label_;
     std::shared_ptr<PointSet> point_set_;

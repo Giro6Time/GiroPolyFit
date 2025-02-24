@@ -1,4 +1,4 @@
-﻿
+﻿#pragma once
 #include "gtest/gtest.h"
 #include "point_set.h"
 #include "point_set_io.h"

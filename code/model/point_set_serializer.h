@@ -30,4 +30,6 @@ private:
 
     static std::shared_ptr<VertexGroup> read_binary_group(std::istream &input);
     static void write_binary_group(std::ostream &output, std::shared_ptr<VertexGroup> group);
+
+    static std::vector<float> get_group_parameters(std::shared_ptr<VertexGroup> g);
 };

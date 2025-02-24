@@ -221,13 +221,15 @@ std::shared_ptr<VertexGroup> PointSetSerializer::read_ascii_group(std::istream &
 
     float r, g, b;
     input >> dumy >> r >> g >> b;
-    // Color color(r, g, b);
+    Color color(r, g, b);
 
     int num_points;
     input >> dumy >> num_points;
 
     std::shared_ptr<VertexGroup> grp = std::make_shared<VertexGroup>();
-    // assign_group_parameters(grp, para);
+
+    my_assert(para.size() == 4);
+    grp->set_plane(Plane(para[0], para[1], para[2], para[3]));
 
     for (int i = 0; i < num_points; ++i)
     {
@@ -237,7 +239,7 @@ std::shared_ptr<VertexGroup> PointSetSerializer::read_ascii_group(std::istream &
     }
 
     grp->set_label(label);
-    // grp->set_color(color);
+    grp->set_color(color);
 
     return grp;
 }
@@ -246,12 +248,11 @@ void PointSetSerializer::write_ascii_group(std::ostream &output, std::shared_ptr
 {
     // 实现写入ascii格式的顶点组的功能
     {
-        //输出后把vg都修改为plane
+        // 输出后把vg都修改为plane
         int type = 0;
         output << "group_type: " << type << std::endl;
 
-        // const std::vector<float> &para = get_group_parameters(group);
-        const std::vector<float> &para = {0, 0, 0, 0}; // TODO: 替换测试数据为计算结果
+        const std::vector<float> &para = get_group_parameters(group);
         output << "num_group_parameters: " << para.size() << std::endl;
         output << "group_parameters: ";
         for (std::size_t i = 0; i < para.size() - 1; ++i)
@@ -261,9 +262,8 @@ void PointSetSerializer::write_ascii_group(std::ostream &output, std::shared_ptr
         std::string label = group->label();
         output << "group_label: " << label << std::endl;
 
-        // Color c = g->color();
-        // output << "group_color: " << c.r() << " " << c.g() << " " << c.b() << std::endl;
-        output << "group_color: " << 1 << " " << 1 << " " << 1 << std::endl; // TODO: 替换测试数据为计算结果
+        Color c = group->color();
+        output << "group_color: " << c.r() << " " << c.g() << " " << c.b() << std::endl;
 
         std::size_t num_point = group->size();
         output << "group_num_points: " << num_point << std::endl;
@@ -287,4 +287,17 @@ void PointSetSerializer::write_binary_group(std::ostream &output, std::shared_pt
 {
     // 实现写入二进制格式的顶点组的功能
     std ::cout << "save vg" << std::endl;
+}
+
+std::vector<float> PointSetSerializer::get_group_parameters(std::shared_ptr<VertexGroup> g)
+{
+    int num = 4;
+    std::vector<float> para(num);
+
+    para[0] = static_cast<float>(g->plane().a());
+    para[1] = static_cast<float>(g->plane().b());
+    para[2] = static_cast<float>(g->plane().c());
+    para[3] = static_cast<float>(g->plane().d());
+
+    return para;
 }

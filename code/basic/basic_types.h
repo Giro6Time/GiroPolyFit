@@ -9,6 +9,14 @@
 #include <vector>
 #include "common.h"
 #include "vec.h"
+
+enum Sign
+{
+    NEGATIVE = -1,
+    ZERO = 0,
+    POSITIVE = 1
+};
+
 namespace String
 {
     void split(const std::string &in,
