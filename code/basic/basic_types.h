@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include "common.h"
 #include "vec.h"
 
@@ -133,6 +134,26 @@ namespace Numeric
     size_t index_of_min_abs(T a, T b, T c)
     {
         return index_of_min(std::fabs(a), std::fabs(b), std::fabs(c));
+    }
+
+}
+
+namespace Memory
+{
+    typedef unsigned char byte;
+    typedef unsigned char word8;
+    typedef unsigned short word16;
+    typedef unsigned int word32;
+    
+    typedef byte* pointer;
+    inline void clear(void *addr, size_t size)
+    {
+        ::memset(addr, 0, size);
+    }
+
+    inline void copy(void *to, const void *from, size_t size)
+    {
+        ::memcpy(to, from, size);
     }
 
 }
