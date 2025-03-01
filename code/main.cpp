@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
 #endif
 
     QWidget *window = new QWidget(); // 创建一个QWidget窗口
-    MyUi::Form ui(window);
+    std::shared_ptr<MyUi::Form> ui(new MyUi::Form(window));
+    ui->setupUi(window);
     return app.exec(); // 进入事件循环
 }

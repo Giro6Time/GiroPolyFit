@@ -44,7 +44,6 @@ idx ...
 
 void PointSetSerializer::load_vg(std::shared_ptr<PointSet> point_set, const std::string &file_name)
 {
-    // TODO: 添加动态进度记录
 
     std::ifstream input = std::ifstream(file_name.c_str());
     if (input.fail())
@@ -56,7 +55,7 @@ void PointSetSerializer::load_vg(std::shared_ptr<PointSet> point_set, const std:
     input.seekg(0, input.end);
     std::streamoff length = input.tellg();
     input.seekg(0, input.beg);
-    // ProgressLogger progress(length);
+    ProgressLogger progress(length);
 
     // dumy表示当前读取的数据类型（如point，color等）
     std::string dumy;
@@ -65,34 +64,41 @@ void PointSetSerializer::load_vg(std::shared_ptr<PointSet> point_set, const std:
 
     // 读入点坐标
     input >> dumy >> num;
+    progress.next();
     std::vector<vec3> &points = point_set->points();
     points.resize(num);
 
     for (int i = 0; i < num; ++i)
     {
         input >> points[i];
+        progress.next();
     }
 
     // 颜色
     input >> dumy >> num;
+    progress.next();
     std::vector<vec3> &colors = point_set->colors();
     colors.resize(num);
     for (int i = 0; i < num; ++i)
     {
         input >> colors[i];
+        progress.next();
     }
 
     // 法向量
     input >> dumy >> num;
+    progress.next();
     std::vector<vec3> &normals = point_set->normals();
     normals.resize(num);
     for (int i = 0; i < num; ++i)
     {
         input >> normals[i];
+        progress.next();
     }
 
     std::size_t num_groups = 0;
     input >> dumy >> num_groups;
+    progress.next();
     for (int i = 0; i < num_groups; ++i)
     {
         std::shared_ptr<VertexGroup> g = read_ascii_group(input);
@@ -116,12 +122,13 @@ void PointSetSerializer::load_vg(std::shared_ptr<PointSet> point_set, const std:
                 g->add_child(chld);
             }
         }
+        std::streamoff pos = input.tellg();
+        progress.notify(pos);
     }
 }
 
 void PointSetSerializer::save_vg(const std::shared_ptr<PointSet> point_set, const std::string &file_name)
 {
-    // TODO: 添加动态进度记录
     std::ofstream output(file_name);
     if (!output.is_open())
     {
@@ -129,36 +136,41 @@ void PointSetSerializer::save_vg(const std::shared_ptr<PointSet> point_set, cons
         return;
     }
     output.precision(16);
+    const std::vector<vec3> &points = point_set->points();
+    const std::vector<vec3> &colors = point_set->colors();
+    const std::vector<vec3> &normals = point_set->normals();
+    const std::vector<std::shared_ptr<VertexGroup>> &groups = point_set->groups();
+
+    ProgressLogger progress(points.size() + colors.size() + normals.size() + groups.size());
 
     // 记录点坐标
-    const std::vector<vec3> &points = point_set->points();
     output << "num_points: " << points.size() << std::endl;
     for (const auto &p : points)
     {
         output << p << std::endl;
+        progress.next();
     }
     output << std::endl;
 
     // 记录颜色到文件中
-    const std::vector<vec3> &colors = point_set->colors();
     output << "num_colors: " << colors.size() << std::endl;
     for (const auto &c : colors)
     {
         output << c << std::endl;
+        progress.next();
     }
     output << std::endl;
 
     // 记录法向量到文件中
-    const std::vector<vec3> &normals = point_set->normals();
     output << "num_normals: " << normals.size() << std::endl;
     for (const auto &n : normals)
     {
         output << n << std::endl;
+        progress.next();
     }
     output << std::endl;
 
     // 记录群组信息到文件中
-    const std::vector<std::shared_ptr<VertexGroup>> &groups = point_set->groups();
     output << "num_groups: " << groups.size() << std::endl
            << std::endl;
     for (const auto &g : groups)
@@ -180,6 +192,7 @@ void PointSetSerializer::save_vg(const std::shared_ptr<PointSet> point_set, cons
                 output << std::endl;
             }
         }
+        progress.next();
     }
 
     // 关闭输出文件

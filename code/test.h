@@ -21,7 +21,7 @@ class Ui_Form
 public:
     QTextEdit *textEdit;
 
-    void setupUi(QWidget *Form)
+    virtual void setupUi(QWidget *Form)
     {
         if (Form->objectName().isEmpty())
             Form->setObjectName(QString::fromUtf8("Form"));

@@ -11,6 +11,7 @@
 #include "math_types.h"
 #include "point_set.h"
 #include "vertex_group.h"
+#include "progress.h"
 
 class PointSet;
 class VertexGroup;

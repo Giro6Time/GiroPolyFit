@@ -46,5 +46,5 @@ add_subdirectory(math)
 add_subdirectory(basic)
 add_subdirectory(model)
 
-target_link_libraries(GiroPolyFit debugger)
+target_link_libraries(GiroPolyFit debugger model math basic)
 

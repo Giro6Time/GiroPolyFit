@@ -136,6 +136,29 @@ namespace Numeric
         return index_of_min(std::fabs(a), std::fabs(b), std::fabs(c));
     }
 
+    template <class T>
+    inline T max(T x1, T x2)
+    {
+        return x1 > x2 ? x1 : x2;
+    }
+
+    template <class T>
+    inline T min(T x1, T x2)
+    {
+        return x1 < x2 ? x1 : x2;
+    }
+
+    template <class T>
+    inline T max(T x1, T x2, T x3)
+    {
+        return max(max(x1, x2), x3);
+    }
+
+    template <class T>
+    inline T min(T x1, T x2, T x3)
+    {
+        return min(min(x1, x2), x3);
+    }
 }
 
 namespace Memory
@@ -144,8 +167,8 @@ namespace Memory
     typedef unsigned char word8;
     typedef unsigned short word16;
     typedef unsigned int word32;
-    
-    typedef byte* pointer;
+
+    typedef byte *pointer;
     inline void clear(void *addr, size_t size)
     {
         ::memset(addr, 0, size);

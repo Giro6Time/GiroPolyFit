@@ -33,6 +33,8 @@ TEST_F(PointSetIOTest, ReadPointSet)
     }
 }
 
+
+
 int main(int argc, char **argv)
 {
     Logger::initialize();
