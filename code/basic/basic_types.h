@@ -180,3 +180,10 @@ namespace Memory
     }
 
 }
+
+namespace Math
+{
+    typedef vecng<2, Numeric::float32> vec2;
+    typedef vecng<3, Numeric::float32> vec3;
+    typedef vecng<4, Numeric::float32> vec4;
+}
