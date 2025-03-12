@@ -22,6 +22,9 @@ public:
     const std::vector<float> &planar_qualities() const { return planar_qualities_; }
     std::vector<std::shared_ptr<VertexGroup>> &groups() { return groups_; };
 
+    const bool has_colors() const { return !colors_.empty() && colors_.size() == points_.size(); }
+    const bool has_normals() const { return !normals_.empty() && normals_.size() == points_.size(); }
+    const bool has_planar_qualities() const { return !planar_qualities_.empty() && planar_qualities_.size() == points_.size(); }
 private:
     std::vector<vec3> points_;
     std::vector<vec3> colors_;

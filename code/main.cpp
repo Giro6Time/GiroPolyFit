@@ -1,19 +1,26 @@
-﻿#include <QApplication>
+﻿#pragma once
+#include <QApplication>
+#include <QWidget>
 #include <iostream>
+#include "canvas.h"
+#include "logger.h"
+#include "point_set.h"
+#include "point_set_io.h"
 
-#include "test.cpp"
 int main(int argc, char *argv[])
 {
-    QApplication app(argc, argv); // 创建一个QApplication对象
-
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    my_assert(true);
-
 #endif
+    QApplication app(argc, argv); // 创建一个QApplication对象
 
-    QWidget *window = new QWidget(); // 创建一个QWidget窗口
-    std::shared_ptr<MyUi::Form> ui(new MyUi::Form(window));
-    ui->setupUi(window);
+    Logger::initialize();
+
+    auto pset = PointSetIO::read("D:/Study/Polyfit/GiroPolyFit/test/pointset.vg");
+
+    Ui::Canvas canvas;
+    canvas.add_point_set(pset);
+    canvas.show();
+
     return app.exec(); // 进入事件循环
 }
