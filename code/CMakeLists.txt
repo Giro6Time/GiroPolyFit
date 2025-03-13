@@ -38,36 +38,6 @@ endif()
 
 
 add_executable(GiroPolyFit main.cpp)
-# # 自动复制必要的 DLL 文件
-# if(WIN32)
-#     message("${CMAKE_BUILD_TYPE}")
-#     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-#         set(QT_DLLS
-#             Qt5Cored.dll
-#             Qt5Guid.dll
-#             Qt5Widgetsd.dll
-#             Qt5OpenGLd.dll
-#         )
-#         set(QT_DLLS_PATH "${Qt5_DIR}/../../../debug/bin")
-#     else()
-#         set(QT_DLLS
-#             Qt5Core.dll
-#             Qt5Gui.dll
-#             Qt5Widgets.dll
-#             Qt5OpenGL.dll
-#         )
-#         set(QT_DLLS_PATH "${Qt5_DIR}/../../../bin")
-
-#     endif()
-
-#     foreach(QT_DLL ${QT_DLLS})
-#         add_custom_command(TARGET GiroPolyFit POST_BUILD
-#             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#             "${QT_DLLS_PATH}/${QT_DLL}"
-#             $<TARGET_FILE_DIR:GiroPolyFit>)
-#     endforeach()
-
-# endif()
 add_subdirectory(debugger)
 add_subdirectory(math)
 add_subdirectory(basic)

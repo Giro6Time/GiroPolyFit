@@ -1,10 +1,16 @@
-﻿#include "gtest/gtest.h"
+﻿#pragma once
+#include "gtest/gtest.h"
 #include <QApplication>
 #include "logger.h"
 #include "point_set_io.h"
 #include "point_set_renderer.h"
+#include "point_set_serializer.h"
 #include "camera.h"
 #include "style.h"
+#include "canvas.h"
+#include <pcl/io/pcd_io.h>
+#include <pcl/io/ply_io.h>
+#include <pcl/point_types.h>
 
 /*该测试用于检验pointset是否有被正确的渲染
   Giro: 由于我还不懂怎么通过写gtest脚本来检验渲染是否正确发生，所以只能让他渲染出窗口来然后直接观察结果-，-*/
@@ -29,9 +35,6 @@ protected:
         // 初始化 Logger
         Logger::initialize();
 
-        // 读取点集文件
-        pointset = PointSetIO::read("D:/Study/Polyfit/GiroPolyFit/test/pointset.vg");
-
         // 初始化渲染器
         renderer = new PointSetRenderer();
         PointStyle style;
@@ -50,10 +53,17 @@ protected:
 
 TEST_F(PointSetRendererTest, RenderPointSet)
 {
+    pcl::PLYReader reader;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
+    reader.read<pcl::PointXYZ>("D:/Study/Polyfit/GiroPolyFit/test/happy_vrip.ply", *cloud);
+
+    pointset = std::make_shared<PointSet>();
+    // 读取点集文件
+    PointSetSerializer::load_from_pcl_pointcloud(pointset, cloud);
     // 渲染点集
-    Camera camera;
-    int num = pointset->points().size();
-    EXPECT_EQ(num, 3);
+    Ui::Canvas canvas;
+    canvas.add_point_set(pointset);
+    canvas.show();
 
     app->exec();
 }

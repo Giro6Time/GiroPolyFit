@@ -31,7 +31,7 @@ void PointSetRenderer::draw_point_set_per_point_color(PointSet *pset)
     glPointSize(point_set_style_.size);
 
     // TODO: 等加了光照之后把！去掉
-    if (!pset->has_normals())
+    if (false/*pset->has_normals()*/)
     {
         float *normals = &(pset->normals()[0].x);
         glEnable(GL_LIGHTING);

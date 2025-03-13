@@ -1,10 +1,9 @@
 project(GiroPolyFitTest)
 find_package(OpenGL REQUIRED)
 find_package(Qt5 COMPONENTS Core Gui OpenGL Widgets Xml REQUIRED)
-# find_package(GTest CONFIG REQUIRED)
-
+# find_package(PCL CONFIG REQUIRED)
 message(STATUS "Enable testing")
-set(AllTest "AllTest")
+set(AllTest "AllTest") 
 set(QtLibs Qt::Core Qt::Widgets Qt::Xml Qt::OpenGL)
 
 
@@ -13,8 +12,8 @@ set(QtLibs Qt::Core Qt::Widgets Qt::Xml Qt::OpenGL)
 function(add_gtest test_name source_file)
     add_executable(${test_name} ${source_file})
 
-    target_link_libraries(${test_name} PRIVATE model debugger scene ${QtLibs} OpenGL::GL OpenGL::GLU)
-    target_link_libraries(${test_name} PRIVATE gtest gtest_main)
+    target_link_libraries(${test_name} PRIVATE model debugger scene ui ${QtLibs} OpenGL::GL OpenGL::GLU)
+    target_link_libraries(${test_name} PRIVATE gtest gtest_main ${PCL_LIBRARIES})
     message(STATUS "Adding test: ${test_name} from source: ${source_file}")
     add_test(NAME ${test_name} COMMAND "${test_name}.exe")
 endfunction()
