@@ -6,6 +6,8 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <pcl/point_types.h>
+#include <pcl/io/ply_io.h>
 
 #include "logger.h"
 #include "math_types.h"
@@ -24,6 +26,8 @@ public:
 
     static void load_bvg(std::shared_ptr<PointSet> point_set, const std::string &file_name);
     static void save_bvg(const std::shared_ptr<PointSet> point_set, const std::string &file_name);
+
+    static void load_from_pcl_pointcloud(std::shared_ptr<PointSet> point_set,const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
 
 private:
     static std::shared_ptr<VertexGroup> read_ascii_group(std::istream &input);

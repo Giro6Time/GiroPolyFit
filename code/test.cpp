@@ -3,8 +3,6 @@
 #include "progress.h"
 #include "point_set_io.h"
 #include <memory>
-#include <QLabel>
-#include <QWidget>
 
 namespace MyUi
 {

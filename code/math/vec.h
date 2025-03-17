@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "common.h"
+#include <iostream>
 
 /// @brief n维向量模板
 /// @tparam DIM 维度

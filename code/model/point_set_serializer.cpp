@@ -314,3 +314,13 @@ std::vector<float> PointSetSerializer::get_group_parameters(std::shared_ptr<Vert
 
     return para;
 }
+
+void PointSetSerializer::load_from_pcl_pointcloud(std::shared_ptr<PointSet> point_set, const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
+{
+    for (int i = 0; i < cloud->size(); i++)
+    {
+            point_set->points().push_back(vec3(cloud->points[i].x, cloud->points[i].y, cloud->points[i].z));
+            point_set->colors().push_back(vec3(1, 1, 1));
+
+    }
+}
