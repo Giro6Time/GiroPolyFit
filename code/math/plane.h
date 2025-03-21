@@ -10,13 +10,13 @@ class Plane
 {
 public:
     typedef Numeric::float32 float32;
-    typedef vecng<2, float32> Point2D;
-    typedef vecng<3, float32> Point3D;
+    typedef vecng<2, float32> Point2d;
+    typedef vecng<3, float32> Point3d;
     typedef vecng<3, float32> Vector3;
 
 public:
-    inline Plane(const Point3D &p1, const Point3D &p2, const Point3D &p3);
-    inline Plane(const Point3D &p, const Vector3 &n);
+    inline Plane(const Point3d &p1, const Point3d &p2, const Point3d &p3);
+    inline Plane(const Point3d &p, const Vector3 &n);
     inline Plane(float32 a, float32 b, float32 c, float32 d)
     {
         a_ = a;
@@ -44,31 +44,31 @@ public:
 
     inline Vector3 normal() const;
     /// @brief 返回平面上的一个点
-    inline Point3D point() const;
+    inline Point3d point() const;
     /// @return 平面的其中一个正交基准
     inline Vector3 base1() const;
     /// @return 平面的其中一个正交基准
     inline Vector3 base2() const;
     /// @brief 将世界3D坐标投影到平面2D坐标上（以base1、base2为基准）
-    inline Point2D to_2d(const Point3D &p) const;
+    inline Point2d to_2d(const Point3d &p) const;
     /// @brief 将平面2D坐标转换为世界3D坐标
-    inline Point3D to_3d(const Point2D &p) const;
+    inline Point3d to_3d(const Point2d &p) const;
     /// @brief 将点坐标投射到平面上
-    inline Point3D projection(const Point3D &p) const;
+    inline Point3d projection(const Point3d &p) const;
     /// @brief 计算a*x + b*y + c*z + d的结果
-    inline float32 equation_value(const Point3D &p) const { return (a_ * p.x + b_ * p.y + c_ * p.z + d_); }
+    inline float32 equation_value(const Point3d &p) const { return (a_ * p.x + b_ * p.y + c_ * p.z + d_); }
     /// @brief 计算点到平面的距离的平方
-    float32 distance2(const Point3D &p) const;
+    float32 distance2(const Point3d &p) const;
 
     /// @brief 检查线面是否相交
     /// @param p 返回线面交点
-    inline bool intersection(const Line3D &line, Point3D &p) const;
+    inline bool intersection(const Line3d &line, Point3d &p) const;
     /// @brief 检查线面是否相交
-    inline bool intersection(const Line3D &line) const;
+    inline bool intersection(const Line3d &line) const;
 
     /// @brief 检查点p在平面的正面或反面
     /// @return POSITIVE: 正面  NEGETIVE: 反面  ZERO: 平面内
-    inline Sign orient(const Point3D &p) const;
+    inline Sign orient(const Point3d &p) const;
 
 private:
     float32 a_;
@@ -77,7 +77,7 @@ private:
     float32 d_;
 };
 
-inline Plane::Plane(const Point3D &p1, const Point3D &p2, const Point3D &p3)
+inline Plane::Plane(const Point3d &p1, const Point3d &p2, const Point3d &p3)
 {
     Vector3 n = cross(p2 - p1, p3 - p1);
     normalize(n);
@@ -98,7 +98,7 @@ inline Plane::Plane(const Point3D &p1, const Point3D &p2, const Point3D &p3)
 #endif
 }
 
-inline Plane::Plane(const Point3D &p, const Vector3 &n)
+inline Plane::Plane(const Point3d &p, const Vector3 &n)
 {
     Vector3 nn = normalize(n);
     a_ = nn.x;
@@ -138,32 +138,32 @@ inline Plane::Vector3 Plane::normal() const
     return n;
 }
 
-inline Plane::Point3D Plane::point() const
+inline Plane::Point3d Plane::point() const
 {
     // 假设d为0时，原点在平面上
     if (d_ == 0)
     {
-        return Point3D(0, 0, 0);
+        return Point3d(0, 0, 0);
     }
     else
     {
         // 可以选择令x=0, y=0，求z = (-d)/c（假设c != 0）
         if (c_ != 0)
         {
-            return Point3D(0, 0, -d_ / c_);
+            return Point3d(0, 0, -d_ / c_);
         }
         else if (b_ != 0)
         {
             // 如果c为0，令y=0，解x
-            return Point3D(-d_ / a_, 0, 0);
+            return Point3d(-d_ / a_, 0, 0);
         }
         else if (a_ != 0)
         {
-            return Point3D(0, -d_ / b_, 0);
+            return Point3d(0, -d_ / b_, 0);
         }
     }
     my_assert_not_reached();
-    return Point3D(0, 0, 0); // 这行不应被运行到
+    return Point3d(0, 0, 0); // 这行不应被运行到
 }
 
 // 实现base1()函数
@@ -196,7 +196,7 @@ inline Plane::Vector3 Plane::base2() const
     return b2;
 }
 
-inline Plane::Point2D Plane::to_2d(const Point3D &p) const
+inline Plane::Point2d Plane::to_2d(const Point3d &p) const
 {
     // 使用base1和base2作为基底，构造变换矩阵
     Vector3 b1 = base1();
@@ -206,10 +206,10 @@ inline Plane::Point2D Plane::to_2d(const Point3D &p) const
     float32 x = dot(v, b1);
     float32 y = dot(v, b2);
 
-    return Point2D(x, y);
+    return Point2d(x, y);
 }
 
-inline Plane::Point3D Plane::to_3d(const Point2D &p) const
+inline Plane::Point3d Plane::to_3d(const Point2d &p) const
 {
     // 逆变换
     Vector3 b1 = base1();
@@ -219,7 +219,7 @@ inline Plane::Point3D Plane::to_3d(const Point2D &p) const
     return point() + v;
 }
 
-inline Plane::Point3D Plane::projection(const Point3D &p) const
+inline Plane::Point3d Plane::projection(const Point3d &p) const
 {
     // 计算点到平面的投影点
     // 投影点p通过参数方程表达
@@ -228,16 +228,16 @@ inline Plane::Point3D Plane::projection(const Point3D &p) const
     float32 x = p.x - a_ * t;
     float32 y = p.y - b_ * t;
     float32 z = p.z - c_ * t;
-    return Point3D(x, y, z);
+    return Point3d(x, y, z);
 }
 
-inline Plane::float32 Plane::distance2(const Point3D &p) const
+inline Plane::float32 Plane::distance2(const Point3d &p) const
 {
     float32 v = equation_value(p);
     return v * v / (a_ * a_ + b_ * b_ + c_ * c_);
 }
 
-inline bool Plane::intersection(const Line3D &line, Point3D &p) const
+inline bool Plane::intersection(const Line3d &line, Point3d &p) const
 {
     Vector3 dir = line.direction();
 
@@ -248,13 +248,13 @@ inline bool Plane::intersection(const Line3D &line, Point3D &p) const
     }
 
     // 使用线面交点计算方法，求解t
-    Point3D p0 = line.point();
+    Point3d p0 = line.point();
     float32 t = -equation_value(p0) / tmp;
     p = p0 + dir * t;
     return true;
 }
 
-inline bool Plane::intersection(const Line3D &line) const
+inline bool Plane::intersection(const Line3d &line) const
 {
     Vector3 dir = line.direction();
     float32 tmp = dot(dir, normal());
@@ -267,7 +267,7 @@ inline bool Plane::intersection(const Line3D &line) const
 }
 
 // 实现orient函数
-inline Sign Plane::orient(const Point3D &p) const
+inline Sign Plane::orient(const Point3d &p) const
 {
     double val = equation_value(p);
 

@@ -14,6 +14,20 @@ void GIROPOLYFIT_API range_assertion_failed(double value, double min, double max
 void GIROPOLYFIT_API should_not_have_reached(
     const std::string &file, int line);
 
+#ifdef ATTIRIBUTE_CHECK
+#define my_attribute_assert(x) my_assert(x)
+#else
+#define my_attribute_assert(x)
+#endif
+
+#ifndef NDEBUG
+#define my_debug_assert(x) my_assert(x)
+#define my_debug_range_assert(x, min_val, max_val) my_range_assert(x, min_val, max_val)
+#else
+#define my_debug_assert(x)
+#define my_debug_range_assert(x, min_val, max_val)
+#endif
+
 #define my_assert(x)                                    \
     {                                                   \
         if (!(x))                                       \

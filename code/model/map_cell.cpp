@@ -1,9 +1,13 @@
 #include "map_cell.h"
-#include "basic.h"
+#include "math_types.h"
 
 namespace MapTypes
 {
     // Vertex
+    Vertex::Vertex() {}
+    Vertex::Vertex(const vec3 &p) : point_(p) {}
+    Vertex::~Vertex() { halfedge_.reset(); }
+
     bool Vertex::is_valid() const
     {
         return (halfedge()->vertex() == shared_from_this());
@@ -109,7 +113,7 @@ namespace MapTypes
     void Facet::assert_is_valid() const
     {
         my_assert(halfedge()->facet() == shared_from_this());
-        my_assert(nb_edges() > 2);
+        my_assert(num_edges() > 2);
     }
 
 }

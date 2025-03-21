@@ -1,5 +1,6 @@
-#pragma once
+﻿#pragma once
 #include "common.h"
+#include "basic.h"
 #include "basic_types.h"
 #include <memory>
 
@@ -7,6 +8,10 @@ class Map;
 class MapMutator;
 namespace MapTypes
 {
+    typedef Math::vec2 vec2;
+    typedef Math::vec3 vec3;
+    typedef Math::vec4 vec4;
+
     class Vertex;
     class Halfedge;
     class Facet;
@@ -16,20 +21,21 @@ namespace MapTypes
     class GIROPOLYFIT_API Combel
     {
     public:
-        Combel();
-        ~Combel();
+        Combel() {}
+        ~Combel() {}
+        bool is_activated = true;
     };
 
     class GIROPOLYFIT_API Vertex : public Combel, public std::enable_shared_from_this<Vertex>
     {
     public:
-        Vertex() : halfedge_(nil) {}
-        Vertex(const Math::vec3 &p) : halfedge_(nil), point_(p) {}
-        ~Vertex() { halfedge_ = nil; }
+        Vertex();
+        Vertex(const vec3 &p);
+        ~Vertex();
 
-        const Math::vec3 &point() const { return point_; }
-        Math::vec3 &point() { return point_; }
-        void set_point(const Math::vec3 &p) { point_ = p; }
+        inline const vec3 &point() const { return point_; }
+        inline vec3 &point() { return point_; }
+        inline void set_point(const vec3 &p) { point_ = p; }
 
         /// @return 指向当前顶点的halfedge
         std::shared_ptr<Halfedge> halfedge() const { return halfedge_; }
@@ -51,23 +57,22 @@ namespace MapTypes
 
     private:
         std::shared_ptr<Halfedge> halfedge_;
-        Math::vec3 point_;
+        vec3 point_;
     };
 
     class GIROPOLYFIT_API Halfedge : public Combel, std::enable_shared_from_this<Halfedge>
     {
     public:
-        Halfedge() : opposite_(nil), next_(nil),
-                     prev_(nil), facet_(nil), vertex_(nil)
+        Halfedge()
         {
         }
         ~Halfedge()
         {
-            opposite_ = nil;
-            next_ = nil;
-            prev_ = nil;
-            facet_ = nil;
-            vertex_ = nil;
+            opposite_.reset();
+            next_.reset();
+            prev_.reset();
+            facet_.reset();
+            vertex_.reset();
         }
 
         std::shared_ptr<Halfedge> opposite() const { return opposite_; }
@@ -86,7 +91,7 @@ namespace MapTypes
         std::shared_ptr<Facet> facet() const { return facet_; }
         std::shared_ptr<Vertex> vertex() const { return vertex_; }
 
-        bool is_border() const { return facet_ == nil; }
+        bool is_border() const { return facet_ == nullptr; }
         bool is_border_edge() const
         {
             return is_border() || opposite()->is_border();
@@ -130,14 +135,14 @@ namespace MapTypes
     class GIROPOLYFIT_API Facet : public Combel, public std::enable_shared_from_this<Facet>
     {
     public:
-        Facet() : halfedge_(nil) {}
-        ~Facet() { halfedge_ = nil; }
+        Facet() : halfedge_(nullptr) {}
+        ~Facet() { halfedge_ = nullptr; }
 
         std::shared_ptr<Halfedge> halfedge() const { return halfedge_; }
 
         int degree() const;
-        int nb_edges() const { return degree(); }
-        int nb_vertices() const { return degree(); }
+        int num_edges() const { return degree(); }
+        int num_vertices() const { return degree(); }
 
         bool is_on_border() const;
         bool is_triangle() const;

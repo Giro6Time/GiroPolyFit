@@ -49,7 +49,7 @@ private:
 };
 
 /// @brief 2D射线
-typedef GenericLine<2, Numeric::float32> Line2D;
+typedef GenericLine<2, Numeric::float32> Line2d;
 
 /// @brief 3D射线
-typedef GenericLine<3, Numeric::float32> Line3D;
+typedef GenericLine<3, Numeric::float32> Line3d;
