@@ -159,6 +159,45 @@ namespace Numeric
     {
         return min(min(x1, x2), x3);
     }
+
+    template <class T>
+    inline Sign sgn(T x)
+    {
+        return (x > 0) ? POSITIVE : ((x < 0) ? NEGATIVE : ZERO);
+    }
+
+    template <class T>
+    inline T abs(T x)
+    {
+        return (x > 0) ? x : -x;
+    }
+
+    template <class T>
+    inline T sqr(T x)
+    {
+        return x * x;
+    }
+
+    template <class T>
+    inline void clamp(T &x, T min, T max)
+    {
+        if (x < min)
+        {
+            x = min;
+        }
+        else if (x > max)
+        {
+            x = max;
+        }
+    }
+
+    template <class T>
+    inline void swap(T &x, T &y)
+    {
+        T z = x;
+        x = y;
+        y = z;
+    }
 }
 
 namespace Memory
