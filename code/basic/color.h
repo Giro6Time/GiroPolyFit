@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "basic_types.h"
 #include "assert.h"
+#include <iostream>
 
 class Color
 {
@@ -35,6 +36,13 @@ public:
     }
 
     float32 &operator[](int i)
+    {
+        assert(i >= 0 && i <= 3);
+        return components_[i];
+    }
+    
+
+    const float32 &operator[](int i) const
     {
         assert(i >= 0 && i <= 3);
         return components_[i];
@@ -82,4 +90,14 @@ inline Color Color::fused_color(const Color &c1, float w1, const Color &c2, floa
     float b = (c1.b() * w1 + c2.b() * w2) / (w1 + w2);
     float a = (c1.a() * w1 + c2.a() * w2) / (w1 + w2);
     return Color(r, g, b, a);
+}
+
+inline std::ostream &operator<<(std::ostream &output, const Color &color)
+{
+    return output << color[0] << " " << color[1] << " " << color[2] << " " << color[3];
+}
+
+inline std::istream &operator>>(std::istream &input, Color &color)
+{
+    return input >> color[0] >> color[1] >> color[2] >> color[3];
 }

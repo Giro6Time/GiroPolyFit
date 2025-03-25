@@ -2,6 +2,8 @@
 namespace FileUtils
 {
 
+	static const char * const PATH_SEPARATORS = "/\\";
+
     std::string to_lower_case(const std::string &str)
     {
         std::string lowcase_str(str);
@@ -24,4 +26,14 @@ namespace FileUtils
         std::string ext = file_name.substr(dot + 1);
         return to_lower_case(ext);
     }
+
+    std::string dir_name(const std::string &file_name)
+    {
+        std::string::size_type slash = file_name.find_last_of(PATH_SEPARATORS);
+        if (slash == std::string::npos)
+            return std::string();
+        else
+            return std::string(file_name, 0, slash);
+    }
+
 }

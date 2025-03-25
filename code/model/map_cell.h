@@ -5,7 +5,6 @@
 #include <memory>
 
 class Map;
-class MapMutator;
 namespace MapTypes
 {
     typedef Math::vec2 vec2;
@@ -21,9 +20,13 @@ namespace MapTypes
     class GIROPOLYFIT_API Combel
     {
     public:
-        Combel() {}
+        Combel() { id = id_cnt++; }
         ~Combel() {}
         bool is_activated = true;
+        unsigned id;
+
+    private:
+        static unsigned id_cnt;
     };
 
     class GIROPOLYFIT_API Vertex : public Combel, public std::enable_shared_from_this<Vertex>
@@ -31,6 +34,9 @@ namespace MapTypes
     public:
         Vertex();
         Vertex(const vec3 &p);
+        Vertex(const Vertex &other) : point_(other.point_) // 浅拷贝坐标
+        {
+        }
         ~Vertex();
 
         inline const vec3 &point() const { return point_; }
@@ -53,7 +59,6 @@ namespace MapTypes
     protected:
         void set_halfedge(std::shared_ptr<Halfedge> h) { halfedge_ = h; }
         friend class ::Map;
-        friend class ::MapMutator;
 
     private:
         std::shared_ptr<Halfedge> halfedge_;
@@ -64,6 +69,9 @@ namespace MapTypes
     {
     public:
         Halfedge()
+        {
+        }
+        Halfedge(const Halfedge &h)
         {
         }
         ~Halfedge()
@@ -89,6 +97,7 @@ namespace MapTypes
         }
 
         std::shared_ptr<Facet> facet() const { return facet_; }
+        /// @brief 指向该半边的目标vertex
         std::shared_ptr<Vertex> vertex() const { return vertex_; }
 
         bool is_border() const { return facet_ == nullptr; }
@@ -122,7 +131,6 @@ namespace MapTypes
         void set_vertex(std::shared_ptr<Vertex> v) { vertex_ = v; }
 
         friend class ::Map;
-        friend class ::MapMutator;
 
     private:
         std::shared_ptr<Halfedge> opposite_;
@@ -136,6 +144,7 @@ namespace MapTypes
     {
     public:
         Facet() : halfedge_(nullptr) {}
+        Facet(Facet &f) {}
         ~Facet() { halfedge_ = nullptr; }
 
         std::shared_ptr<Halfedge> halfedge() const { return halfedge_; }
@@ -153,7 +162,6 @@ namespace MapTypes
     protected:
         void set_halfedge(std::shared_ptr<Halfedge> h) { halfedge_ = h; }
         friend class ::Map;
-        friend class ::MapMutator;
 
     private:
         std::shared_ptr<Halfedge> halfedge_;

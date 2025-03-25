@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include <vector>
-#include "math_types.h"
+#include "basic_types.h"
 #include "common.h"
 #include "vertex_group.h"
 class VertexGroup;
@@ -10,6 +10,8 @@ class GIROPOLYFIT_API PointSet
 public:
     PointSet();
     ~PointSet();
+
+    typedef Math::vec3 vec3;
 
 public:
     std::vector<vec3> &points() { return points_; }
@@ -25,6 +27,7 @@ public:
     const bool has_colors() const { return !colors_.empty() && colors_.size() == points_.size(); }
     const bool has_normals() const { return !normals_.empty() && normals_.size() == points_.size(); }
     const bool has_planar_qualities() const { return !planar_qualities_.empty() && planar_qualities_.size() == points_.size(); }
+
 private:
     std::vector<vec3> points_;
     std::vector<vec3> colors_;
@@ -32,6 +35,6 @@ private:
     std::vector<float> planar_qualities_;
     std::vector<std::shared_ptr<VertexGroup>> groups_;
 
-    // mutable bool bbox_is_valid_;
-    // mutable Box3d bbox_;
+    mutable bool bbox_is_valid_;
+    mutable Box3d bbox_;
 };

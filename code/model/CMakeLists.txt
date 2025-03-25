@@ -7,6 +7,8 @@ add_library(model STATIC
     map_cell.cpp
     map.cpp
     map_attribute.h
+    map_serializer.h
+
 )
 target_include_directories(model PUBLIC ./)
 target_link_libraries(model basic math debugger)

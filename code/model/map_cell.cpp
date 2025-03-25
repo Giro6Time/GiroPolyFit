@@ -3,6 +3,7 @@
 
 namespace MapTypes
 {
+    unsigned Combel::id_cnt = 0;
     // Vertex
     Vertex::Vertex() {}
     Vertex::Vertex(const vec3 &p) : point_(p) {}

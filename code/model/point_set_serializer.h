@@ -10,7 +10,7 @@
 #include <pcl/io/ply_io.h>
 
 #include "logger.h"
-#include "math_types.h"
+#include "basic_types.h"
 #include "point_set.h"
 #include "vertex_group.h"
 #include "progress.h"
@@ -20,6 +20,8 @@ class VertexGroup;
 
 class GIROPOLYFIT_API PointSetSerializer
 {
+    typedef Math::vec3 vec3;
+
 public:
     static void load_vg(std::shared_ptr<PointSet> point_set, const std::string &file_name);
     static void save_vg(const std::shared_ptr<PointSet> point_set, const std::string &file_name);
@@ -27,7 +29,7 @@ public:
     static void load_bvg(std::shared_ptr<PointSet> point_set, const std::string &file_name);
     static void save_bvg(const std::shared_ptr<PointSet> point_set, const std::string &file_name);
 
-    static void load_from_pcl_pointcloud(std::shared_ptr<PointSet> point_set,const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
+    static void load_from_pcl_pointcloud(std::shared_ptr<PointSet> point_set, const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
 
 private:
     static std::shared_ptr<VertexGroup> read_ascii_group(std::istream &input);
