@@ -42,7 +42,10 @@ public:
     typedef std::list<std::shared_ptr<Facet>>::const_iterator ConstFacetIterator;
 
 public:
-    Map() : bbox_is_valid_(false), bbox_() {}
+    Map() : bbox_is_valid_(false), bbox_(),
+            vertex_attribute_store_(std::make_shared<AttributeStore>()),
+            halfedge_attribute_store_(std::make_shared<AttributeStore>()),
+            facet_attribute_store_(std::make_shared<AttributeStore>()) {}
     virtual ~Map();
 
     inline VertexIterator vertices_begin() { return vertices_.begin(); }
@@ -67,9 +70,9 @@ public:
     void invalidate_bbox() { bbox_is_valid_ = false; }
 
     // 属性管理
-    AttributeStore &vertex_attribute_store() { return vertex_attribute_store_; }
-    AttributeStore &halfedge_attribute_store() { return halfedge_attribute_store_; }
-    AttributeStore &facet_attribute_store() { return facet_attribute_store_; }
+    const std::shared_ptr<AttributeStore> vertex_attribute_store() const { return vertex_attribute_store_; }
+    const std::shared_ptr<AttributeStore> halfedge_attribute_store() const { return halfedge_attribute_store_; }
+    const std::shared_ptr<AttributeStore> facet_attribute_store() const { return facet_attribute_store_; }
 
     // 观察者实现
     void add_vertex_observer(std::shared_ptr<VertexObserver> observer)
@@ -167,9 +170,9 @@ private:
     std::list<std::shared_ptr<HalfedgeObserver>> halfedge_observers_;
     std::list<std::shared_ptr<FacetObserver>> facet_observers_;
 
-    AttributeStore vertex_attribute_store_;
-    AttributeStore halfedge_attribute_store_;
-    AttributeStore facet_attribute_store_;
+    std::shared_ptr<AttributeStore> vertex_attribute_store_;
+    std::shared_ptr<AttributeStore> halfedge_attribute_store_;
+    std::shared_ptr<AttributeStore> facet_attribute_store_;
 
     mutable bool bbox_is_valid_;
     mutable Box3d bbox_;

@@ -6,8 +6,9 @@ add_library(model STATIC
     vertex_group.h
     map_cell.cpp
     map.cpp
-    map_attribute.h
-    map_serializer.h
+    map_builder.cpp
+    map_serializer.cpp
+    map_io.cpp
 
 )
 target_include_directories(model PUBLIC ./)

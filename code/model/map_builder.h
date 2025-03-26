@@ -34,20 +34,20 @@ public:
     template <typename T>
     std::shared_ptr<AttributeHandle<T>> get_vertex_attribute_handle(std::string attr_name)
     {
-        return target_->vertex_attribute_store().create_handle<T>(attr_name);
+        return target_->vertex_attribute_store()->create_handle<T>(attr_name);
     }
     template <typename T>
     std::shared_ptr<AttributeHandle<T>> get_halfedge_attribute_handle(std::string attr_name)
     {
-        return target_->halfedge_attribute_store().create_handle<T>(attr_name);
+        return target_->halfedge_attribute_store()->create_handle<T>(attr_name);
     }
     template <typename T>
     std::shared_ptr<AttributeHandle<T>> get_facet_attribute_handle(std::string attr_name)
     {
-        return target_->facet_attribute_store().create_handle<T>(attr_name);
+        return target_->facet_attribute_store()->create_handle<T>(attr_name);
     }
 
-    const std::shared_ptr<Map::Facet> &current_facet() const
+    const std::shared_ptr<Map::Facet> current_facet() const
     {
         return current_f_;
     }

@@ -3,15 +3,14 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-MapSerializer_obj::MapSerializer_obj()
+MapSerializer_obj::MapSerializer_obj() : current_directory_(), current_material_()
 {
 }
 
 bool MapSerializer_obj::serialize_read(const std::string &file_name, std::shared_ptr<Map> mesh)
 {
     // 检查文件读取，具体obj文件解析逻辑在do_read中执行
-    std::string cur_dir = FileUtils::dir_name(file_name);
-
+    current_directory_ = FileUtils::dir_name(file_name);
     if (!mesh)
     {
         Logger::error("MapSerializer") << "mesh is null" << std::endl;
@@ -19,22 +18,22 @@ bool MapSerializer_obj::serialize_read(const std::string &file_name, std::shared
 
     std::fstream::openmode mode = std::fstream::in;
 
-    std::ifstream input(cur_dir.c_str(), mode);
+    std::ifstream input(file_name.c_str(), mode);
     if (input.fail())
     {
         Logger::error("MapSerializer") << "Could not open file\'" << file_name << "\'" << std::endl;
     }
-    MapBuilder builder(mesh);
+    std::shared_ptr<MapBuilder> builder = std::make_shared<MapBuilder>(mesh);
+
     return do_read(input, builder);
 }
 
-bool MapSerializer_obj::do_read(std::istream &input, MapBuilder &builder)
+bool MapSerializer_obj::do_read(std::istream &input, std::shared_ptr<MapBuilder> builder)
 {
-    auto color_ = builder.get_vertex_attribute_handle<Color>("color");
-    auto lock_ = builder.get_vertex_attribute_handle<bool>("lock");
+    auto color_ = builder->get_vertex_attribute_handle<Color>("color");
+    auto lock_ = builder->get_vertex_attribute_handle<bool>("lock");
     std::string line;
-
-    builder.begin_surface();
+    builder->begin_surface();
     while (!input.eof())
     {
         std::getline(input, line);
@@ -46,17 +45,17 @@ bool MapSerializer_obj::do_read(std::istream &input, MapBuilder &builder)
         {
             Math::vec3 p;
             stream >> p;
-            builder.add_vertex(p);
+            builder->add_vertex(p);
         }
         else if (token == "vt")
         {
             Math::vec2 q;
             stream >> q;
-            // builder.add_tex_vertex(q);TODO: 实现纹理
+            // builder->add_tex_vertex(q);TODO: 实现纹理
         }
         else if (token == "f")
         {
-            builder.begin_facet();
+            builder->begin_facet();
             while (!stream || !stream.eof())
             {
                 std::string s;
@@ -66,18 +65,18 @@ bool MapSerializer_obj::do_read(std::istream &input, MapBuilder &builder)
                     std::istringstream v_input(s);
                     int index;
                     v_input >> index;
-                    builder.add_vertex_to_facet(index - 1);
+                    builder->add_vertex_to_facet(index - 1);
                     char c;
                     v_input >> c;
                     if (c == '/')
                     {
                         v_input >> index;
-                        // builder.set_corner_tex_vertex(index-1);
+                        // builder->set_corner_tex_vertex(index-1);
                     }
                 }
             }
-            builder.end_facet();
-            color_->set(builder.current_facet()->id, current_material_);
+            builder->end_facet();
+            color_->set(builder->current_facet()->id, current_material_);
         }
         else if (token == "#")
         {
@@ -87,7 +86,7 @@ bool MapSerializer_obj::do_read(std::istream &input, MapBuilder &builder)
             {
                 int index;
                 stream >> index;
-                lock_->set(builder.vertex()[index]->id, true);
+                lock_->set(builder->vertex()[index]->id, true);
             }
         }
         else if (token == "mtllib")
@@ -122,7 +121,7 @@ bool MapSerializer_obj::do_read(std::istream &input, MapBuilder &builder)
         }
     }
 
-    return false;
+    return true;
 }
 
 bool MapSerializer_obj::do_write(std::ostream &output, const Map *mesh) const

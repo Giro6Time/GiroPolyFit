@@ -27,46 +27,71 @@ public:
         name_ = name;
     }
 
-    // 类似数组的访问语法（适配器模式）
-    T &get(int id)
+    std::shared_ptr<T> get(int id)
     {
-        return std::any_cast<T>(store_->get(name_, id));
+        auto store = store_.lock(); // 获取 shared_ptr
+        if (!store)
+        {
+            throw std::runtime_error("AttributeStore is no longer valid");
+        }
+        // 从 store_ 中获取属性值（std::shared_ptr<std::any>）
+        auto value_ptr = store->get<T>(name_, id);
+        // 使用 std::any_cast 提取实际类型为 T 的值，并封装到 std::shared_ptr<T> 中
+        return std::make_shared<T>(std::any_cast<T>(*value_ptr));
     }
 
     void set(int id, const T &attr)
     {
-        store_->set(name_, id, std::any(attr));
+        auto store = store_.lock();
+        if (!store)
+        {
+            throw std::runtime_error("AttributeStore is no longer valid");
+        }
+        store->set(name_, id, std::any(attr));
     }
 
     // 一次性设置若干个属性
     void set_attributes(const std::unordered_map<int, T> &attributes)
     {
-        store_->set_attributes(name_, attributes);
+        auto store = store_.lock();
+        if (!store)
+        {
+            throw std::runtime_error("AttributeStore is no longer valid");
+        }
+        store->set_attributes(name_, attributes);
     }
 
     // 删除指定属性
     void erase(int id)
     {
-        store_->erase(name_, id);
+        auto store = store_.lock();
+        if (!store)
+        {
+            throw std::runtime_error("AttributeStore is no longer valid");
+        }
+        store->erase(name_, id);
     }
 
     bool valid()
     {
-        return (bool)store_;
+        return !store_.expired();
     }
 
 private:
     friend class AttributeStore;
 
-    std::shared_ptr<AttributeStore> store_;
+    std::weak_ptr<AttributeStore> store_;
     std::string name_;
     // NOTE: 可以考虑添加一层缓存，暂存该handle已经读写过的属性
     // 如果属性名足够多，则可以尝试实现
 };
 
 /// @brief 属性存储仓库（组合模式 + 代理模式）
-class AttributeStore : std::enable_shared_from_this<AttributeStore>
+class AttributeStore : public std::enable_shared_from_this<AttributeStore>
 {
+public:
+    AttributeStore() {}
+
 protected:
     using Iterator = typename std::unordered_map<
         int,
@@ -96,12 +121,21 @@ protected:
     }
 
     // getter setter
-    std::shared_ptr<std::any> &get(const std::string &name, int id)
+    template <typename T>
+    std::shared_ptr<std::any> get(const std::string &name, int id)
     {
-        return attributes_.at(name).at(id);
+        try
+        {
+            return attributes_.at(name).at(id);
+        }
+        catch (const std::out_of_range &e)
+        {
+            attributes_[name][id] = std::make_shared<std::any>(T());
+            return attributes_[name][id];
+        }
     }
 
-    const std::shared_ptr<std::any> &get(const std::string &name, int id) const
+    const std::shared_ptr<std::any> get(const std::string &name, int id) const
     {
         return attributes_.at(name).at(id); // at() 更安全，直接抛出异常
     }
@@ -181,7 +215,6 @@ public:
     template <class T>
     std::shared_ptr<AttributeHandle<T>> create_handle(const std::string &name)
     {
-        auto handle = std::make_shared<AttributeHandle<T>>();
         // 检查该名称是否已关联其他类型
         auto it = name_to_type_.find(name);
 #ifdef ATTRIBUTE_CHECK
@@ -197,6 +230,8 @@ public:
             name_to_type_.emplace(name, std::type_index(typeid(decayed)));
         }
 #endif
+
+        auto handle = std::make_shared<AttributeHandle<T>>();
         handle->bind(shared_from_this(), name);
         return handle;
     }

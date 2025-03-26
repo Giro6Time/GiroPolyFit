@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <iostream>
 #include <map>
+#include <memory>
 #include "common.h"
 #include "color.h"
 #include "map.h"
@@ -15,7 +16,7 @@ public:
         const std::string &file_name, std::shared_ptr<Map> mesh);
 
 protected:
-    virtual bool do_read(std::istream &input, MapBuilder &builder);
+    virtual bool do_read(std::istream &input, std::shared_ptr<MapBuilder> builder);
     virtual bool do_write(std::ostream &output, const Map *mesh) const;
     void read_mtl_lib(std::istream &input);
 

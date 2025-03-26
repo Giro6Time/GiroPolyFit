@@ -3,10 +3,10 @@ find_package(OpenGL REQUIRED)
 find_package(Qt5 COMPONENTS Core Gui OpenGL Widgets Xml REQUIRED)
 # find_package(PCL CONFIG REQUIRED)
 message(STATUS "Enable testing")
-set(AllTest "AllTest") 
+set(AllTest "AllTest")
 set(QtLibs Qt::Core Qt::Widgets Qt::Xml Qt::OpenGL)
 
-
+set(CMAKE_BUILD_TYPE Debug)
 # 添加 gtest 的头文件路径
 # 定义一个函数来添加测试
 function(add_gtest test_name source_file)

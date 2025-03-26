@@ -20,7 +20,7 @@ namespace MapTypes
     class GIROPOLYFIT_API Combel
     {
     public:
-        Combel() { id = id_cnt++; }
+        Combel() : id(id_cnt++) {}
         ~Combel() {}
         bool is_activated = true;
         unsigned id;

@@ -16,7 +16,7 @@ const Box3d &Map::bbox() const
 
 void Map::compute_facet_normals()
 {
-    auto handle = facet_attribute_store_.create_handle<std::shared_ptr<Math::vec3>>("facet_normals");
+    auto handle = facet_attribute_store_->create_handle<std::shared_ptr<Math::vec3>>("facet_normals");
     for (auto it = facets_begin(); it != facets_end(); it++)
     {
         auto sptr = std::make_shared<Math::vec3>(GeometryTypes::facet_normal(*it));
@@ -26,7 +26,7 @@ void Map::compute_facet_normals()
 
 void Map::compute_vertex_normals()
 {
-    auto handle = vertex_attribute_store_.create_handle<std::shared_ptr<Math::vec3>>("vertex_normals");
+    auto handle = vertex_attribute_store_->create_handle<std::shared_ptr<Math::vec3>>("vertex_normals");
 
     for (auto it = vertices_begin(); it != vertices_end(); it++)
     {
@@ -41,9 +41,9 @@ void Map::clear()
     halfedges_.clear();
     facets_.clear();
 
-    vertex_attribute_store_.clear();
-    halfedge_attribute_store_.clear();
-    facet_attribute_store_.clear();
+    vertex_attribute_store_->clear();
+    halfedge_attribute_store_->clear();
+    facet_attribute_store_->clear();
     bbox_is_valid_ = false;
 }
 
@@ -131,7 +131,7 @@ std::shared_ptr<Map::Vertex> Map::copy_vertex(std::shared_ptr<Map::Vertex> v)
 {
     std::shared_ptr<Vertex> new_v = new_vertex();
     new_v->point() = v->point();
-    vertex_attribute_store_.copy_attributes(v->id, new_v->id);
+    vertex_attribute_store_->copy_attributes(v->id, new_v->id);
     notify_add_vertex(new_v);
     return new_v;
 }
@@ -139,7 +139,7 @@ std::shared_ptr<Map::Vertex> Map::copy_vertex(std::shared_ptr<Map::Vertex> v)
 std::shared_ptr<Map::Halfedge> Map::copy_halfedge(std::shared_ptr<Map::Halfedge> h)
 {
     std::shared_ptr<Halfedge> new_h = new_halfedge();
-    halfedge_attribute_store_.copy_attributes(h->id, new_h->id);
+    halfedge_attribute_store_->copy_attributes(h->id, new_h->id);
     notify_add_halfedge(new_h);
     return new_h;
 }
@@ -147,7 +147,7 @@ std::shared_ptr<Map::Halfedge> Map::copy_halfedge(std::shared_ptr<Map::Halfedge>
 std::shared_ptr<Map::Facet> Map::copy_facet(std::shared_ptr<Map::Facet> f)
 {
     std::shared_ptr<Facet> new_f = new_facet();
-    facet_attribute_store_.copy_attributes(f->id, new_f->id);
+    facet_attribute_store_->copy_attributes(f->id, new_f->id);
 
     notify_add_facet(new_f);
     return new_f;
@@ -156,21 +156,21 @@ std::shared_ptr<Map::Facet> Map::copy_facet(std::shared_ptr<Map::Facet> f)
 void Map::delete_vertex(std::shared_ptr<Map::Vertex> v)
 {
     notify_remove_vertex(v);
-    vertex_attribute_store_.delete_all_attributes(v->id);
+    vertex_attribute_store_->delete_all_attributes(v->id);
     vertices_.remove(v);
 }
 
 void Map::delete_halfedge(std::shared_ptr<Map::Halfedge> h)
 {
     notify_remove_halfedge(h);
-    vertex_attribute_store_.delete_all_attributes(h->id);
+    vertex_attribute_store_->delete_all_attributes(h->id);
     halfedges_.remove(h);
 }
 
 void Map::delete_facet(std::shared_ptr<Map::Facet> f)
 {
     notify_add_facet(f);
-    vertex_attribute_store_.delete_all_attributes(f->id);
+    vertex_attribute_store_->delete_all_attributes(f->id);
     facets_.remove(f);
 }
 

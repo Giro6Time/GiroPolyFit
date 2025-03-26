@@ -37,7 +37,7 @@ struct FacetKey
 static std::shared_ptr<std::set<FacetKey>> all_facet_keys;
 
 // construct
-MapBuilder::MapBuilder(std::shared_ptr<Map> map) : target_(map)
+MapBuilder::MapBuilder(std::shared_ptr<Map> map) : target_(map), state_(initial), quiet_(true)
 {
 }
 
@@ -84,8 +84,8 @@ std::string MapBuilder::state_to_string(state s)
 void MapBuilder::begin_surface()
 {
     transition(initial, surface);
-    star_ = target_->vertex_attribute_store().create_handle<Star>("star");
-    is_locked_ = target_->vertex_attribute_store().create_handle<bool>("lock");
+    star_ = target_->vertex_attribute_store()->create_handle<Star>("star");
+    is_locked_ = target_->vertex_attribute_store()->create_handle<bool>("lock");
     // is_locked_.bind(target());
     num_non_manifold_v_ = 0;
     num_duplicate_e_ = 0;
@@ -143,7 +143,7 @@ void MapBuilder::terminate_surface()
             Map::set_halfedge_vertex(h, (*it)->prev()->vertex());
 
             // Used later to fix non-manifold vertices.
-            star_->get((*it)->vertex()->id).push_back(h);
+            star_->get((*it)->vertex()->id)->push_back(h);
         }
     }
 
@@ -183,7 +183,7 @@ void MapBuilder::terminate_surface()
     // Step 4 : check for isolated vertices
     for (unsigned int i = 0; i < vertex_.size(); i++)
     {
-        if (star_->get(vertex_[i]->id).size() == 0)
+        if (star_->get(vertex_[i]->id)->size() == 0)
         {
             num_isolated_v_++;
             target_->delete_vertex(vertex_[i]);
@@ -203,9 +203,9 @@ bool MapBuilder::split_non_manifold_vertex(const std::shared_ptr<Vertex> v)
     std::set<std::shared_ptr<Map::Halfedge>> star;
     {
         auto &star_of_v = star_->get(v->id);
-        for (unsigned int i = 0; i < star_of_v.size(); i++)
+        for (unsigned int i = 0; i < star_of_v->size(); i++)
         {
-            star.insert(star_of_v[i]);
+            star.insert(star_of_v->at(i));
         }
     }
 
@@ -245,7 +245,7 @@ bool MapBuilder::vertex_is_manifold(std::shared_ptr<Map::Vertex> v)
     // Note: this test is valid only if the borders
     // have been constructed.
 
-    return (int(star_->get(v->id).size()) == v->degree());
+    return (int(star_->get(v->id)->size()) == v->degree());
 }
 void MapBuilder::disconnect_vertex(
     std::shared_ptr<Map::Halfedge> start_in, std::shared_ptr<Map::Vertex> v, std::set<std::shared_ptr<Map::Halfedge>> &star)
@@ -253,7 +253,7 @@ void MapBuilder::disconnect_vertex(
     auto start = start_in;
 
     auto &star_of_v = star_->get(v->id);
-    star_of_v.clear();
+    star_of_v->clear();
 
     //   Important note: in this class, all the Stars correspond to the
     // set of halfedges radiating FROM a vertex (i.e. h->vertex() != v
@@ -284,7 +284,7 @@ void MapBuilder::disconnect_vertex(
 
     auto cur = start;
     Map::set_halfedge_vertex(cur->opposite(), v);
-    star_of_v.push_back(cur);
+    star_of_v->push_back(cur);
     auto it = star.find(cur);
     my_assert(it != star.end());
     star.erase(it);
@@ -300,7 +300,7 @@ void MapBuilder::disconnect_vertex(
         auto it = star.find(cur);
         my_assert(it != star.end());
         star.erase(it);
-        star_of_v.push_back(cur);
+        star_of_v->push_back(cur);
     }
 
     if (start->is_border())
@@ -318,6 +318,7 @@ void MapBuilder::add_vertex_internal(const Math::vec3 &v)
 {
     auto new_v = target_->new_vertex();
     new_v->set_point(v);
+    vertex_.push_back(new_v);
 }
 
 // #region state facet
@@ -330,7 +331,6 @@ void MapBuilder::begin_facet()
 void MapBuilder::end_facet()
 {
     int num_vertices = facet_vertex_.size();
-
     if (num_vertices < 3)
     {
         if (!quiet_)
@@ -449,8 +449,8 @@ std::shared_ptr<Map::Halfedge> MapBuilder::find_halfedge_between(
     std::shared_ptr<Map::Vertex> from,
     std::shared_ptr<Map::Vertex> to)
 {
-    Star &star = star_->get(from->id);
-    for (auto it = star.begin(); it != star.end(); it++)
+    std::shared_ptr<Star> star = star_->get(from->id);
+    for (auto it = star->begin(); it != star->end(); it++)
     {
         auto cur = *it;
         if (cur->vertex() == to)
@@ -510,7 +510,7 @@ std::shared_ptr<Map::Halfedge> MapBuilder::new_halfedge_between(
         Map::make_opposite(result, opposite);
     }
 
-    star_->get(from->id).push_back(result);
+    star_->get(from->id)->push_back(result);
     Map::set_vertex_halfedge(to, result);
 
     return result;
