@@ -16,21 +16,21 @@ const Box3d &Map::bbox() const
 
 void Map::compute_facet_normals()
 {
-    auto handle = facet_attribute_store_->create_handle<std::shared_ptr<Math::vec3>>("facet_normals");
+    auto handle = facet_attribute_store_->create_handle<Math::vec3>("facet_normals");
     for (auto it = facets_begin(); it != facets_end(); it++)
     {
-        auto sptr = std::make_shared<Math::vec3>(GeometryTypes::facet_normal(*it));
+        auto sptr = (GeometryTypes::facet_normal(*it));
         (*handle).set((*it)->id, sptr);
     }
 }
 
 void Map::compute_vertex_normals()
 {
-    auto handle = vertex_attribute_store_->create_handle<std::shared_ptr<Math::vec3>>("vertex_normals");
+    auto handle = vertex_attribute_store_->create_handle<Math::vec3>("vertex_normals");
 
     for (auto it = vertices_begin(); it != vertices_end(); it++)
     {
-        auto sptr = std::make_shared<Math::vec3>(GeometryTypes::vertex_normal(*it));
+        auto sptr = GeometryTypes::vertex_normal(*it);
         (*handle).set((*it)->id, sptr);
     }
 }
@@ -108,6 +108,7 @@ std::shared_ptr<Map::Vertex> Map::new_vertex()
     auto v = std::make_shared<Vertex>();
     vertices_.push_back(v);
     notify_add_vertex(v);
+    v->id = v_id++;
     return v;
 }
 
@@ -116,6 +117,7 @@ std::shared_ptr<Map::Halfedge> Map::new_halfedge()
     auto h = std::make_shared<Halfedge>();
     halfedges_.push_back(h);
     notify_add_halfedge(h);
+    h->id = h_id++;
     return h;
 }
 
@@ -124,6 +126,7 @@ std::shared_ptr<Map::Facet> Map::new_facet()
     auto f = std::make_shared<Facet>();
     facets_.push_back(f);
     notify_add_facet(f);
+    f->id = f_id++;
     return f;
 }
 

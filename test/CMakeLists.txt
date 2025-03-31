@@ -12,7 +12,7 @@ set(CMAKE_BUILD_TYPE Debug)
 function(add_gtest test_name source_file)
     add_executable(${test_name} ${source_file})
 
-    target_link_libraries(${test_name} PRIVATE model debugger scene ui ${QtLibs} OpenGL::GL OpenGL::GLU)
+    target_link_libraries(${test_name} PRIVATE model debugger scene ui method ${QtLibs} OpenGL::GL OpenGL::GLU)
     target_link_libraries(${test_name} PRIVATE gtest gtest_main ${PCL_LIBRARIES})
     message(STATUS "Adding test: ${test_name} from source: ${source_file}")
     add_test(NAME ${test_name} COMMAND "${test_name}.exe")

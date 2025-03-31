@@ -30,7 +30,6 @@ public slots:
     void updateCameraPosition();
 
 private:
-    QMatrix4x4 projection_;
     QMatrix4x4 view_;
     QVector3D cameraPos_;
     QVector3D cameraFront_;
@@ -38,4 +37,7 @@ private:
 
     QPoint lastMousePosition_;
     QSet<int> pressedKeys_;
+
+    float yaw_ = 0;
+    float pitch_ = 0;
 };

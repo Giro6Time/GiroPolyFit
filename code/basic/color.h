@@ -27,6 +27,11 @@ public:
     void set_b(float32 b) { components_[2] = b; }
     void set_a(float32 a) { components_[3] = a; }
 
+    inline float32 *data()
+    {
+        return components_;
+    }
+
     void set(float32 r, float32 g, float32 b, float32 a)
     {
         components_[0] = r;
@@ -40,7 +45,6 @@ public:
         assert(i >= 0 && i <= 3);
         return components_[i];
     }
-    
 
     const float32 &operator[](int i) const
     {

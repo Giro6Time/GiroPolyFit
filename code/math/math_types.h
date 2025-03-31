@@ -4,6 +4,7 @@
 #include "basic_types.h"
 #include "basic.h"
 #include "map_cell.h"
+#include "plane.h"
 #include <memory>
 
 class Map;
@@ -27,4 +28,5 @@ namespace GeometryTypes
     Math::vec3 facet_normal(const std::shared_ptr<MapTypes::Facet> f);
     Math::vec3 vertex_normal(const std::shared_ptr<MapTypes::Vertex> v);
     Math::vec3 triangle_normal(const std::shared_ptr<MapTypes::Facet> f);
+    // Plane facet_plane(const std::shared_ptr<MapTypes::Facet> f);
 };

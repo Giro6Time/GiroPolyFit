@@ -37,7 +37,7 @@ struct FacetKey
 static std::shared_ptr<std::set<FacetKey>> all_facet_keys;
 
 // construct
-MapBuilder::MapBuilder(std::shared_ptr<Map> map) : target_(map), state_(initial), quiet_(true)
+MapBuilder::MapBuilder(std::shared_ptr<Map> map) : target_(map), state_(initial), quiet_(false)
 {
 }
 
@@ -146,7 +146,6 @@ void MapBuilder::terminate_surface()
             star_->get((*it)->vertex()->id)->push_back(h);
         }
     }
-
     // Step 2 : setup the 'next' and 'prev' pointers of the border.
     //
     for (auto it = hbegin; it != hend; it++)
@@ -201,14 +200,11 @@ bool MapBuilder::split_non_manifold_vertex(const std::shared_ptr<Vertex> v)
     }
 
     std::set<std::shared_ptr<Map::Halfedge>> star;
+    auto &star_of_v = star_->get(v->id);
+    for (unsigned int i = 0; i < star_of_v->size(); i++)
     {
-        auto &star_of_v = star_->get(v->id);
-        for (unsigned int i = 0; i < star_of_v->size(); i++)
-        {
-            star.insert(star_of_v->at(i));
-        }
+        star.insert(star_of_v->at(i));
     }
-
     // For the first wedge, reuse the vertex
     disconnect_vertex(
         v->halfedge()->opposite(), v, star);
@@ -244,7 +240,6 @@ bool MapBuilder::vertex_is_manifold(std::shared_ptr<Map::Vertex> v)
     // are tested).
     // Note: this test is valid only if the borders
     // have been constructed.
-
     return (int(star_->get(v->id)->size()) == v->degree());
 }
 void MapBuilder::disconnect_vertex(
@@ -342,18 +337,18 @@ void MapBuilder::end_facet()
         return;
     }
 
-    if (false && num_vertices == 3)
-    {
-        auto W = facet_vertex_;
-        std::sort(W.begin(), W.end());
-        FacetKey k(W[0], W[1], W[2]);
-        if (all_facet_keys->find(k) != all_facet_keys->end())
-        {
-            std::cerr << '.' << std::flush;
-            return;
-        }
-        all_facet_keys->insert(k);
-    }
+    // if (false && num_vertices == 3)
+    // {
+    //     auto W = facet_vertex_;
+    //     std::sort(W.begin(), W.end());
+    //     FacetKey k(W[0], W[1], W[2]);
+    //     if (all_facet_keys->find(k) != all_facet_keys->end())
+    //     {
+    //         std::cerr << '.' << std::flush;
+    //         return;
+    //     }
+    //     all_facet_keys->insert(k);
+    // }
 
     // Detect duplicated vertices
     {
@@ -383,6 +378,7 @@ void MapBuilder::end_facet()
             int to = ((from + 1) % num_vertices);
             if (find_halfedge_between(facet_vertex_[from], facet_vertex_[to]))
             {
+
                 num_duplicate_e_++;
                 facet_vertex_[from] = copy_vertex(facet_vertex_[from]);
                 facet_vertex_[to] = copy_vertex(facet_vertex_[to]);
@@ -404,15 +400,14 @@ void MapBuilder::begin_facet_internal()
     current_f_ = target_->new_facet();
     first_vertex_in_facet_.reset();
     current_v_.reset();
-    first_halfedge_in_facet_ = nil;
+    first_halfedge_in_facet_.reset();
     current_h_.reset();
 }
 
 void MapBuilder::end_facet_internal()
 {
     transition(facet, surface);
-    auto h =
-        new_halfedge_between(current_v_, first_vertex_in_facet_);
+    auto h = new_halfedge_between(current_v_, first_vertex_in_facet_);
 
     Map::make_sequence(current_h_, h);
     Map::make_sequence(h, first_halfedge_in_facet_);
@@ -428,9 +423,7 @@ void MapBuilder::add_vertex_to_facet_internal(std::shared_ptr<Vertex> v)
     }
     else
     {
-        auto new_halfedge =
-            new_halfedge_between(current_v_, v);
-
+        auto new_halfedge = new_halfedge_between(current_v_, v);
         if (first_halfedge_in_facet_ == nil)
         {
             first_halfedge_in_facet_ = new_halfedge;
@@ -509,7 +502,6 @@ std::shared_ptr<Map::Halfedge> MapBuilder::new_halfedge_between(
     {
         Map::make_opposite(result, opposite);
     }
-
     star_->get(from->id)->push_back(result);
     Map::set_vertex_halfedge(to, result);
 

@@ -6,7 +6,7 @@ namespace Ui
     Canvas::Canvas(QWidget *parent)
         : QOpenGLWidget(parent),
           camera_(std::make_unique<Camera>(this)),
-          renderer_(std::make_unique<PointSetRenderer>()),
+          pset_renderer_(std::make_unique<PointSetRenderer>()),
           grid_(std::make_unique<Grid>(100))
 
     {
@@ -25,8 +25,22 @@ namespace Ui
     {
         initializeOpenGLFunctions();
         glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LESS);
         glEnable(GL_POINT_SMOOTH);
-        glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+        glEnable(GL_MULTISAMPLE);
+// glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+#ifndef NDEBUG
+        glEnable(GL_DEBUG_OUTPUT);
+#endif
+
+        light_position_ = {10.f, 10.f, 10.f, 1.f};
+        light_color_ = {1.f, 1.f, 1.f, 1.f};
+
+        // 初始化所有 MeshRenderer
+        for (auto &mesh_renderer : mesh_renderers_)
+        {
+            mesh_renderer->init();
+        }
     }
 
     void Canvas::resizeGL(int w, int h)
@@ -40,17 +54,22 @@ namespace Ui
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        QMatrix4x4 view = camera_->getViewMatrix();
-
+        view_ = camera_->getViewMatrix();
+        light_position_[0] -= 0.05f;
         // 设置投影和视图矩阵
         glMatrixMode(GL_PROJECTION);
         glLoadMatrixf(projection_.constData());
         glMatrixMode(GL_MODELVIEW);
-        glLoadMatrixf(view.constData());
+        glLoadMatrixf(view_.constData());
 
+        // PointSetRenderer 和MeshRenderer 的数据结构不相同，写法有一定差异
         for (auto it = point_sets_.begin(); it != point_sets_.end(); it++)
         {
-            renderer_->draw(*it);
+            pset_renderer_->draw(*it);
+        }
+        for (auto it = mesh_renderers_.begin(); it != mesh_renderers_.end(); it++)
+        {
+            (*it)->draw();
         }
         grid_->draw(projection_, camera_->getCameraPos());
     }

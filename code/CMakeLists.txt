@@ -44,6 +44,7 @@ add_subdirectory(basic)
 add_subdirectory(model)
 add_subdirectory(ui)
 add_subdirectory(scene)
+add_subdirectory(method)
 
-target_link_libraries(GiroPolyFit debugger model math basic ui scene)
+target_link_libraries(GiroPolyFit debugger model math basic ui scene method)
 

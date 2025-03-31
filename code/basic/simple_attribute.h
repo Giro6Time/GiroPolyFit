@@ -26,6 +26,14 @@ public:
         store_ = store;
         name_ = name;
     }
+    bool contain(int id)
+    {
+        auto store = store_.lock(); // 获取 shared_ptr
+        if (!store)
+        {
+            throw std::runtime_error("AttributeStore is no longer valid");
+        }
+    }
 
     std::shared_ptr<T> get(int id)
     {
@@ -35,9 +43,8 @@ public:
             throw std::runtime_error("AttributeStore is no longer valid");
         }
         // 从 store_ 中获取属性值（std::shared_ptr<std::any>）
-        auto value_ptr = store->get<T>(name_, id);
-        // 使用 std::any_cast 提取实际类型为 T 的值，并封装到 std::shared_ptr<T> 中
-        return std::make_shared<T>(std::any_cast<T>(*value_ptr));
+        std::any value_ptr = store->get<T>(name_, id);
+        return std::any_cast<std::shared_ptr<T>>(value_ptr);
     }
 
     void set(int id, const T &attr)
@@ -47,7 +54,7 @@ public:
         {
             throw std::runtime_error("AttributeStore is no longer valid");
         }
-        store->set(name_, id, std::any(attr));
+        store->set<T>(name_, id, (attr));
     }
 
     // 一次性设置若干个属性
@@ -95,10 +102,10 @@ public:
 protected:
     using Iterator = typename std::unordered_map<
         int,
-        std::shared_ptr<std::any>>::iterator;
+        std::any>::iterator;
     using ConstIterator = typename std::unordered_map<
         int,
-        std::shared_ptr<std::any>>::const_iterator;
+        std::any>::const_iterator;
 
     Iterator begin(const std::string &name)
     {
@@ -120,9 +127,23 @@ protected:
         return attributes_.at(name).end();
     }
 
+    template <typename T>
+    bool contain(const std::string &name, int id)
+    {
+        try
+        {
+            attributes_.at(name).at(id);
+            return true;
+        }
+        catch (const std::out_of_range &e)
+        {
+            return false;
+        }
+    }
+
     // getter setter
     template <typename T>
-    std::shared_ptr<std::any> get(const std::string &name, int id)
+    std::any get(const std::string &name, int id)
     {
         try
         {
@@ -130,19 +151,15 @@ protected:
         }
         catch (const std::out_of_range &e)
         {
-            attributes_[name][id] = std::make_shared<std::any>(T());
+            attributes_[name][id] = std::make_shared<T>();
             return attributes_[name][id];
         }
     }
 
-    const std::shared_ptr<std::any> get(const std::string &name, int id) const
+    template <typename T>
+    void set(const std::string &name, int id, const T &value)
     {
-        return attributes_.at(name).at(id); // at() 更安全，直接抛出异常
-    }
-
-    void set(const std::string &name, int id, const std::any &value)
-    {
-        attributes_[name][id] = std::make_shared<std::any>(value);
+        attributes_[name][id] = std::make_shared<T>(value);
     }
 
     // 一次性设置若干个属性
@@ -209,6 +226,12 @@ public:
         }
     }
 
+    bool has_attribute(const std::string &name) const
+    {
+        // 检查属性名是否存在
+        return attributes_.find(name) != attributes_.end();
+    }
+
     /// @brief 创建访问attribute的句柄
     /// @tparam T attribute类型，如果与存储的实际类型不匹配将触发断言
     /// @param name 属性名
@@ -249,7 +272,7 @@ public:
 
 private:
     std::unordered_map<std::string,
-                       std::unordered_map<int, std::shared_ptr<std::any>>>
+                       std::unordered_map<int, std::any>>
         attributes_;
 #ifdef ATTRIBUTE_CHECK
     std::unordered_map<std::string, std::type_index> name_to_type_;

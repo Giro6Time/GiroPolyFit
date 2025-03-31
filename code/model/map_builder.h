@@ -51,6 +51,10 @@ public:
     {
         return current_f_;
     }
+    const std::shared_ptr<Map::Vertex> current_vertex() const
+    {
+        return current_v_;
+    }
 
     const std::vector<std::shared_ptr<Vertex>> &vertex() const
     {

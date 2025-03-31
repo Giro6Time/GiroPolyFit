@@ -29,8 +29,67 @@ std::shared_ptr<Map> MapIO::read(std::string &filename)
 
 bool MapIO::save(const std::string &filename, std::shared_ptr<Map> map)
 {
-    // 空实现
-    return false;
+    if (!map)
+    {
+        Logger::error("MapIO") << "Map is null, cannot save to file" << std::endl;
+        return false;
+    }
+
+    std::ofstream output(filename);
+    if (!output.is_open())
+    {
+        Logger::error("MapIO") << "Failed to open file for writing: " << filename << std::endl;
+        return false;
+    }
+
+    Logger::out("MapIO") << "Saving map to OBJ file: " << filename << std::endl;
+
+    // 写入顶点信息
+    for (auto vertex_it = map->vertices_begin(); vertex_it != map->vertices_end(); ++vertex_it)
+    {
+        auto vertex = *vertex_it;
+        const auto &point = vertex->point();
+        output << "v " << point.x << " " << point.y << " " << point.z << "\n";
+    }
+
+    // 写入面信息
+    for (auto facet_it = map->facets_begin(); facet_it != map->facets_end(); ++facet_it)
+    {
+        auto facet = *facet_it;
+        auto start_halfedge = facet->halfedge();
+        auto current_halfedge = start_halfedge;
+
+        output << "f";
+        do
+        {
+            auto vertex = current_halfedge->vertex();
+            output << " " << (vertex->id + 1); // OBJ 文件中的索引从 1 开始
+            current_halfedge = current_halfedge->next();
+        } while (current_halfedge != start_halfedge);
+        output << "\n";
+    }
+
+    // 写入半边信息（附加在文件底部）
+    output << "# Halfedge information\n";
+    for (auto halfedge_it = map->halfedges_begin(); halfedge_it != map->halfedges_end(); ++halfedge_it)
+    {
+        auto halfedge = *halfedge_it;
+        auto vertex = halfedge->vertex();
+        auto next = halfedge->next();
+        auto opposite = halfedge->opposite();
+        auto facet = halfedge->facet();
+
+        output << "he " << halfedge->id
+               << " v:" << (vertex ? vertex->id : -1)
+               << " next:" << (next ? next->id : -1)
+               << " opp:" << (opposite ? opposite->id : -1)
+               << " f:" << (facet ? facet->id : -1)
+               << "\n";
+    }
+
+    output.close();
+    Logger::out("MapIO") << "Map successfully saved to: " << filename << std::endl;
+    return true;
 }
 
 std::shared_ptr<MapSerializer_obj> MapIO::resolve_serializer(const std::string &file_name)

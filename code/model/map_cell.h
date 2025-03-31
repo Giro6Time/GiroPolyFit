@@ -20,13 +20,12 @@ namespace MapTypes
     class GIROPOLYFIT_API Combel
     {
     public:
-        Combel() : id(id_cnt++) {}
+        Combel() : id(0) {}
         ~Combel() {}
         bool is_activated = true;
         unsigned id;
 
     private:
-        static unsigned id_cnt;
     };
 
     class GIROPOLYFIT_API Vertex : public Combel, public std::enable_shared_from_this<Vertex>

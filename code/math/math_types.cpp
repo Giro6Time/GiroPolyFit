@@ -68,4 +68,11 @@ namespace GeometryTypes
         result = normalize(result);
         return result;
     }
+    // Plane facet_plane(const std::shared_ptr<MapTypes::Facet> f)
+    // {
+    //     return Plane(
+    //         f->halfedge()->vertex()->point(),
+    //         f->halfedge()->next()->vertex()->point(),
+    //         f->halfedge()->next()->next()->vertex()->point());
+    // }
 };

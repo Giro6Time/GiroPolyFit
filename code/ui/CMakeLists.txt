@@ -1,5 +1,5 @@
 ﻿find_package(OpenGL REQUIRED)
-add_library(ui STATIC canvas.cpp)
+add_library(ui STATIC canvas.cpp mainwindow.cpp)
 
 
 set(QtLibs Qt::Core Qt::Widgets Qt::Xml Qt::OpenGL)

@@ -7,4 +7,6 @@ namespace FileUtils
     std::string extension(const std::string &file_name);
 
     std::string dir_name(const std::string &file_name);
+
+    std::string load_text_source(const std::string &filepath);
 }

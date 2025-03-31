@@ -2,6 +2,7 @@
 #include "point_set_io.h"
 #include "point_set.h"
 #include "point_set_renderer.h"
+#include <QtMath>
 Camera::Camera(QWidget *parent)
     : cameraPos_(0.0f, 0.0f, 3.0f),
       cameraFront_(0.0f, 0.0f, -1.0f),
@@ -26,26 +27,36 @@ void Camera::handleMousePress(QMouseEvent *event)
 {
     lastMousePosition_ = event->pos();
 }
-
 void Camera::handleMouseMove(QMouseEvent *event)
 {
-    float sensitivity = 0.1f;
+    float sensitivity = 0.1f; // 鼠标灵敏度
     float xOffset = event->x() - lastMousePosition_.x();
-    float yOffset = lastMousePosition_.y() - event->y();
+    float yOffset = lastMousePosition_.y() - event->y(); // 注意 Y 坐标是反的
     lastMousePosition_ = event->pos();
 
     xOffset *= sensitivity;
     yOffset *= sensitivity;
 
-    QMatrix4x4 rotation;
-    QVector3D right = QVector3D::crossProduct(cameraFront_, cameraUp_).normalized();
-    rotation.rotate(xOffset, cameraUp_);
-    rotation.rotate(yOffset, right);
+    // 更新 yaw 和 pitch
+    yaw_ += xOffset;
+    pitch_ += yOffset;
 
-    cameraFront_ = rotation * cameraFront_;
-    cameraFront_.normalize();
+    // 限制俯仰角范围（-89.0° 到 89.0°）
+    if (pitch_ > 89.0f)
+        pitch_ = 89.0f;
+    else if (pitch_ < -89.0f)
+        pitch_ = -89.0f;
+
+    // 计算新的前向向量
+    float yawRad = qDegreesToRadians(yaw_);
+    float pitchRad = qDegreesToRadians(pitch_);
+
+    QVector3D front;
+    front.setX(std::cos(yawRad) * std::cos(pitchRad));
+    front.setY(std::sin(pitchRad));
+    front.setZ(std::sin(yawRad) * std::cos(pitchRad));
+    cameraFront_ = front.normalized();
 }
-
 void Camera::updateCameraPosition()
 {
     float cameraSpeed = 0.05f;

@@ -1,8 +1,11 @@
 #include "utils.h"
+#include <fstream>
+#include <iostream>
+#include <sstream>
 namespace FileUtils
 {
 
-	static const char * const PATH_SEPARATORS = "/\\";
+    static const char *const PATH_SEPARATORS = "/\\";
 
     std::string to_lower_case(const std::string &str)
     {
@@ -35,5 +38,11 @@ namespace FileUtils
         else
             return std::string(file_name, 0, slash);
     }
-
+    std::string load_text_source(const std::string &filepath)
+    {
+        std::ifstream file(filepath);
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        return buffer.str();
+    }
 }

@@ -177,6 +177,10 @@ private:
     mutable bool bbox_is_valid_;
     mutable Box3d bbox_;
 
+    unsigned v_id = 0;
+    unsigned h_id = 0;
+    unsigned f_id = 0;
+
 public:
     // Utils
     static void make_opposite(std::shared_ptr<MapTypes::Halfedge> h1, std::shared_ptr<MapTypes::Halfedge> h2)

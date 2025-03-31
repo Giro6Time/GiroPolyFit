@@ -3,7 +3,7 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl/io/ply_io.h>
 #include <pcl/point_types.h>
-
+// #include "helloworld.cpp"
 #include "gtest/gtest.h"
 
 class PCLTEST : public ::testing::Test
@@ -16,6 +16,12 @@ TEST_F(PCLTEST, ReadPointSet)
    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
    reader.read<pcl::PointXYZ>("D:/Study/Polyfit/GiroPolyFit/test/happy_vrip.ply", *cloud);
    ASSERT_EQ(543652, cloud->size());
+}
+
+TEST_F(PCLTEST, FUCK)
+{
+   char **argv;
+   // helloWorld(0, argv);
 }
 
 int main(int argc, char **argv)

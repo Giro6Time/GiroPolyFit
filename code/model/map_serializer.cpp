@@ -3,7 +3,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-MapSerializer_obj::MapSerializer_obj() : current_directory_(), current_material_()
+MapSerializer_obj::MapSerializer_obj() : current_directory_(), current_material_(Color(0.7f, 0.7f, 0.7f, 1.0f))
 {
 }
 
@@ -30,7 +30,7 @@ bool MapSerializer_obj::serialize_read(const std::string &file_name, std::shared
 
 bool MapSerializer_obj::do_read(std::istream &input, std::shared_ptr<MapBuilder> builder)
 {
-    auto color_ = builder->get_vertex_attribute_handle<Color>("color");
+    auto color_ = builder->get_facet_attribute_handle<Color>("color");
     auto lock_ = builder->get_vertex_attribute_handle<bool>("lock");
     std::string line;
     builder->begin_surface();
@@ -120,6 +120,7 @@ bool MapSerializer_obj::do_read(std::istream &input, std::shared_ptr<MapBuilder>
             }
         }
     }
+    builder->end_surface();
 
     return true;
 }
