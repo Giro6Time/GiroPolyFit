@@ -21,13 +21,16 @@ private:
     void setupMenuBar();
     void setupToolBar();
     void setupCentralWidget();
-
+    void connectSignalToSlot();
+public slots:
+    void CreateMapFromPointset();
+private:
     QSplitter *leftRightSplitter; // 左右分割器
     QSplitter *topBottomSplitter; // 上下分割器
     QWidget *centerWidget;        // 中心部件
     QVBoxLayout *centerLayout;    // 中心布局
     QHBoxLayout *topLayout;       // 顶部布局
-
+public:
     Ui::Canvas *canvas;  // OpenGL 画布
     QWidget *leftPanel;  // 左侧编辑栏
     QWidget *rightPanel; // 右侧编辑栏

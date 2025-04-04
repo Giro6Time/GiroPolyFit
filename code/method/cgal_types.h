@@ -50,5 +50,3 @@ inline Point3 convert_to_3d(const Point3 &orig, const Vector3 &base1, const Vect
 {
     return orig + base1 * p.x() + base2 * p.y();
 }
-
-#endif

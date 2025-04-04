@@ -1,5 +1,6 @@
 ﻿#include "point_set_serializer.h"
-
+#include <pcl/io/ply_io.h>
+#include <pcl/point_types.h>
 /*
 // file format definition 文件格式
 num_points: num
@@ -315,12 +316,14 @@ std::vector<float> PointSetSerializer::get_group_parameters(std::shared_ptr<Vert
     return para;
 }
 
-void PointSetSerializer::load_from_pcl_pointcloud(std::shared_ptr<PointSet> point_set, const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
+void PointSetSerializer::load_from_pcl_pointcloud(std::shared_ptr<PointSet> point_set, const std::string &file_path)
 {
+    pcl::PLYReader reader;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
+    reader.read<pcl::PointXYZ>(file_path, *cloud);
     for (int i = 0; i < cloud->size(); i++)
     {
-            point_set->points().push_back(vec3(cloud->points[i].x, cloud->points[i].y, cloud->points[i].z));
-            point_set->colors().push_back(vec3(1, 1, 1));
-            
+        point_set->points().push_back(vec3(cloud->points[i].x, cloud->points[i].y, cloud->points[i].z));
+        point_set->colors().push_back(vec3(1, 1, 1));
     }
 }

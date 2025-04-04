@@ -29,6 +29,11 @@ void Camera::handleMousePress(QMouseEvent *event)
 }
 void Camera::handleMouseMove(QMouseEvent *event)
 {
+    if (lastMousePosition_ == QPoint()) // 防止第一帧鼠标未移动时的错误计算
+    {
+        lastMousePosition_ = event->pos();
+        return;
+    }
     float sensitivity = 0.1f; // 鼠标灵敏度
     float xOffset = event->x() - lastMousePosition_.x();
     float yOffset = lastMousePosition_.y() - event->y(); // 注意 Y 坐标是反的

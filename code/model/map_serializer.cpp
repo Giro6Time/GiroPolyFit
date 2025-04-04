@@ -17,7 +17,6 @@ bool MapSerializer_obj::serialize_read(const std::string &file_name, std::shared
     }
 
     std::fstream::openmode mode = std::fstream::in;
-
     std::ifstream input(file_name.c_str(), mode);
     if (input.fail())
     {

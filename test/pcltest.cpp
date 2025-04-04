@@ -18,12 +18,6 @@ TEST_F(PCLTEST, ReadPointSet)
    ASSERT_EQ(543652, cloud->size());
 }
 
-TEST_F(PCLTEST, FUCK)
-{
-   char **argv;
-   // helloWorld(0, argv);
-}
-
 int main(int argc, char **argv)
 {
 

@@ -2,6 +2,7 @@
 #include "color.h"
 struct PointStyle
 {
+    public:
     PointStyle() : visible(false), color(0.0, 0.0, 0.0, 1.0), size(4) {}
     bool visible;
     Color color;
@@ -10,6 +11,7 @@ struct PointStyle
 
 struct SurfaceStyle
 {
+    public:
     SurfaceStyle() : visible(false), color(0.33f, 0.67f, 1.0f, 0.5f) {}
     bool visible;
     Color color;
@@ -17,6 +19,7 @@ struct SurfaceStyle
 
 struct EdgeStyle
 {
+    public:
     EdgeStyle() : visible(false), color(0.f, 0.f, 0.f, 1.f) {}
     bool visible;
     Color color;

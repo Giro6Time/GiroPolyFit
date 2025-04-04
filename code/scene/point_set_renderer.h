@@ -8,6 +8,7 @@ class GIROPOLYFIT_API PointSetRenderer
 {
 public:
     void set_point_style(const PointStyle &style) { point_set_style_ = style; }
+    const PointStyle &get_point_style() { return point_set_style_; }
 
 public:
     virtual void draw(std::shared_ptr<PointSet> pset);

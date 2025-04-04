@@ -59,7 +59,7 @@ TEST_F(PointSetRendererTest, RenderPointSet)
 
     pointset = std::make_shared<PointSet>();
     // 读取点集文件
-    PointSetSerializer::load_from_pcl_pointcloud(pointset, cloud);
+    PointSetSerializer::load_from_pcl_pointcloud(pointset, "D:/Study/Polyfit/GiroPolyFit/test/happy_vrip.ply");
     // 渲染点集
     Ui::Canvas canvas;
     canvas.add_point_set(pointset);

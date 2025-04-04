@@ -48,8 +48,8 @@ TEST_F(MeshRendererTest, RenderMesh)
     ASSERT_TRUE(map) << "Failed to load OBJ file: " << obj_file;
 
     // 渲染网格
-    canvas->add_mesh(map);
     canvas->show();
+    canvas->set_mesh(map);
 
     // 运行事件循环
     app->exec();

@@ -47,5 +47,6 @@ void should_not_have_reached(
     Logger::error("Assert") << "Control should not have reached this point:" << std::endl;
     Logger::error("Assert") << "File: " << file << std::endl;
     Logger::error("Assert") << "Line: " << line << std::endl;
+    
     abort();
 }

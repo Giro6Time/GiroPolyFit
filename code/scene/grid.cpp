@@ -7,7 +7,6 @@ Grid::Grid(int size, float spacing)
 
 void Grid::draw(const QMatrix4x4 &projection, const QVector3D &cameraPos)
 {
-    glDisable(GL_LIGHTING);
     glEnable(GL_LINE_SMOOTH);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -31,6 +30,5 @@ void Grid::draw(const QMatrix4x4 &projection, const QVector3D &cameraPos)
     }
     glEnd();
     glDisable(GL_BLEND);
-    glEnable(GL_LIGHTING);
     glDisable(GL_LINE_SMOOTH);
 }

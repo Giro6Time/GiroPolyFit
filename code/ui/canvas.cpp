@@ -7,6 +7,7 @@ namespace Ui
         : QOpenGLWidget(parent),
           camera_(std::make_unique<Camera>(this)),
           pset_renderer_(std::make_unique<PointSetRenderer>()),
+          mesh_renderer_(std::make_shared<MeshRenderer>(this)),
           grid_(std::make_unique<Grid>(100))
 
     {
@@ -33,14 +34,14 @@ namespace Ui
         glEnable(GL_DEBUG_OUTPUT);
 #endif
 
-        light_position_ = {10.f, 10.f, 10.f, 1.f};
+        light_position_ = {1.f, 5.f, 1.f, 1.f};
         light_color_ = {1.f, 1.f, 1.f, 1.f};
-
-        // 初始化所有 MeshRenderer
-        for (auto &mesh_renderer : mesh_renderers_)
-        {
-            mesh_renderer->init();
-        }
+        glEnable(GL_LIGHTING);
+        glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE); /*GL_FALSE*/
+        glEnable(GL_LIGHT0);
+        glLightfv(GL_LIGHT0, GL_POSITION, light_position_.data());
+        glDisable(GL_LIGHTING);
+        backgroundColor = QColor(0.2, 0.3, 0.3, 1.0);
     }
 
     void Canvas::resizeGL(int w, int h)
@@ -51,26 +52,26 @@ namespace Ui
 
     void Canvas::paintGL()
     {
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(backgroundColor.redF(), backgroundColor.greenF(), backgroundColor.blueF(), backgroundColor.alphaF());
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         view_ = camera_->getViewMatrix();
-        light_position_[0] -= 0.05f;
         // 设置投影和视图矩阵
         glMatrixMode(GL_PROJECTION);
         glLoadMatrixf(projection_.constData());
         glMatrixMode(GL_MODELVIEW);
         glLoadMatrixf(view_.constData());
 
+        // 应用 model 矩阵
+        QMatrix4x4 model;
+        glPushMatrix();
+        glMultMatrixf(model.data());
+
         // PointSetRenderer 和MeshRenderer 的数据结构不相同，写法有一定差异
-        for (auto it = point_sets_.begin(); it != point_sets_.end(); it++)
-        {
-            pset_renderer_->draw(*it);
-        }
-        for (auto it = mesh_renderers_.begin(); it != mesh_renderers_.end(); it++)
-        {
-            (*it)->draw();
-        }
+        pset_renderer_->draw(point_set_);
+        // 恢复之前的模型视图矩阵
+        glPopMatrix();
+        mesh_renderer_->draw();
         grid_->draw(projection_, camera_->getCameraPos());
     }
 
@@ -92,6 +93,37 @@ namespace Ui
     void Canvas::mouseMoveEvent(QMouseEvent *event)
     {
         camera_->handleMouseMove(event);
+    }
+
+    void Canvas::onTransformChanged(QMatrix4x4 transform)
+    {
+        model = transform;
+        mesh_renderer_->model() = transform;
+    }
+    void Canvas::onPointCloudSettingChanged(float pointSize, const QColor &pointColor)
+    {
+        PointStyle style = pset_renderer_->get_point_style();
+        style.color = Color(pointColor.redF(), pointColor.greenF(), pointColor.blueF(), pointColor.alphaF());
+        style.size = pointSize;
+        pset_renderer_->set_point_style(style);
+    }
+    void Canvas::onMeshSettingsChanged(bool showGrid, bool showSurface, const QColor &gridColor, const QColor &surfaceColor)
+    {
+        SurfaceStyle surfaceStyle = mesh_renderer_->get_surface_style();
+        EdgeStyle meshStyle = mesh_renderer_->get_mesh_style();
+        surfaceStyle.color = Color(surfaceColor.redF(), surfaceColor.greenF(), surfaceColor.blueF(), surfaceColor.alphaF());
+        meshStyle.color = Color(gridColor.redF(), gridColor.greenF(), gridColor.blueF(), gridColor.alphaF());
+    }
+    void Canvas::onEnvironmentSettingsChanged(const QVector3D &lightPosition, const QColor &lightColor, const QColor &backgroundColor, float cameraSpeed)
+    {
+        light_position_[0] = lightPosition.x();
+        light_position_[1] = lightPosition.y();
+        light_position_[2] = lightPosition.z();
+
+        light_color_[0] = lightColor.redF();
+        light_color_[1] = lightColor.greenF();
+        light_color_[2] = lightColor.blueF();
+        light_color_[3] = lightColor.alphaF();
     }
 
 }

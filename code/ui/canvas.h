@@ -4,6 +4,7 @@
 #include <iostream>
 #include <QOpenGLFunctions_4_5_Core>
 #include <QMatrix4x4>
+#include <QColor>
 #include "grid.h"
 #include "camera.h"
 #include "point_set_renderer.h"
@@ -26,6 +27,12 @@ namespace Ui
         ///@note: 如果有必要，可以拓展这个类为观察者模式，这样就可以在timeout时有更通用的方法触发别的函数
         void onTimerTimeout();
 
+    public:
+        void onTransformChanged(QMatrix4x4 transform);
+        void onPointCloudSettingChanged(float pointSize, const QColor &pointColor);
+        void onMeshSettingsChanged(bool showGrid, bool showSurface, const QColor &gridColor, const QColor &surfaceColor);
+        void onEnvironmentSettingsChanged(const QVector3D &lightPosition, const QColor &lightColor, const QColor &backgroundColor, float cameraSpeed);
+
     protected:
         void initializeGL() override;
         void resizeGL(int w, int h) override;
@@ -41,73 +48,23 @@ namespace Ui
 
         /// @brief 添加pointset到渲染列表中
         /// @return pointset在列表中的索引
-        size_t add_point_set(std::shared_ptr<PointSet> pset)
+        void set_point_set(std::shared_ptr<PointSet> pset)
         {
-            point_sets_.push_back(pset);
-            return point_sets_.size() - 1;
+            point_set_ = pset;
         }
         /// @brief 获取pointset
         /// @param index pointset在列表中的索引
         std::shared_ptr<PointSet> get_point_set(int index)
         {
-            return point_sets_[index];
-        }
-        /// @brief 移除指定的点集对象
-        /// @param pset 用户传入的 PointSet 对象
-        void remove_point_set_by_object(std::shared_ptr<PointSet> pset)
-        {
-            auto it = std::find(point_sets_.begin(), point_sets_.end(), pset);
-            if (it != point_sets_.end())
-            {
-                point_sets_.erase(it); // 移除找到的点集
-            }
-            else
-            {
-                Logger::warn("Canvas") << "PointSet not found in point_sets_" << std::endl;
-            }
+            return point_set_;
         }
 
         /// @brief 添加网格体到渲染列表中
         /// @param map 用户传入的 Map 对象
         /// @return MeshRenderer 在列表中的索引
-        size_t add_mesh(std::shared_ptr<Map> map)
+        void set_mesh(std::shared_ptr<Map> map)
         {
-            auto renderer = std::make_shared<MeshRenderer>(map, shared_from_this()); // 创建 MeshRenderer，初始化将被延迟到initializeGL中执行
-            mesh_renderers_.push_back(renderer);                                     // 添加到渲染列表
-            return mesh_renderers_.size() - 1;                                       // 返回索引
-        }
-
-        /// @brief 移除指定索引的网格体
-        /// @param index MeshRenderer 在列表中的索引
-        void remove_mesh(size_t index)
-        {
-            if (index < mesh_renderers_.size())
-            {
-                mesh_renderers_.erase(mesh_renderers_.begin() + index); // 移除指定索引的 MeshRenderer
-            }
-            else
-            {
-                Logger::warn("Canvas") << "Invalid index: " << index << std::endl;
-            }
-        }
-
-        /// @brief 移除与指定 Map 对象关联的网格体
-        /// @param map 用户传入的 Map 对象
-        void remove_mesh_by_map(std::shared_ptr<Map> map)
-        {
-            auto it = std::find_if(mesh_renderers_.begin(), mesh_renderers_.end(),
-                                   [&map](const std::shared_ptr<MeshRenderer> &renderer)
-                                   {
-                                       return renderer->target() == map; // 假设 MeshRenderer 提供 get_map() 方法
-                                   });
-            if (it != mesh_renderers_.end())
-            {
-                mesh_renderers_.erase(it); // 移除找到的 MeshRenderer
-            }
-            else
-            {
-                Logger::warn("Canvas") << "try to remove mesh but failed to find." << std::endl;
-            }
+            mesh_renderer_->set_target(map);
         }
 
         QMatrix4x4 projection()
@@ -133,9 +90,11 @@ namespace Ui
         std::unique_ptr<QTimer> timer_;
         std::unique_ptr<Grid> grid_;
 
-        std::vector<std::shared_ptr<PointSet>> point_sets_;
+        std::shared_ptr<PointSet> point_set_;
 
-        std::vector<std::shared_ptr<MeshRenderer>> mesh_renderers_;
+        std::shared_ptr<MeshRenderer> mesh_renderer_;
+        QColor backgroundColor;
         bool initialized = false;
+        QMatrix4x4 model;
     };
 }

@@ -16,6 +16,9 @@ std::shared_ptr<PointSet> PointSetIO::read(const std::string &file_name)
     {
         PointSetSerializer::load_bvg(ps, file_name);
     }
+    else if (extension == "ply"){
+        PointSetSerializer::load_from_pcl_pointcloud(ps, file_name);
+    }
 
     return ps;
 }
